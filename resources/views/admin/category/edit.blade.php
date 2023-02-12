@@ -1,5 +1,7 @@
 @extends('admin.layouts.app')
 
+@php $parent_id = ( !is_null($category->parent_id) ) ? $category->parent_id : 0; @endphp
+
 @section('styles')
 <!-- iCheck for checkboxes and radio inputs -->
 <link rel="stylesheet" href="{{ asset('admin/plugins/icheck-bootstrap/icheck-bootstrap.min.css') }}">
@@ -62,6 +64,21 @@
                                 <label for="slug_editable"></label>
                             </div>
                         </div>
+
+                        <label>Select Parent Category</label>
+                        <ul>
+                          <li class="pt-2 pb-2" style="list-style-type:none;">
+                            <div class="icheck-success d-inline mr-5">
+                              <input type="radio" name="parent_category" id="parent_category_0" value="0" checked>
+                              <label for="parent_category_0" style="font-weight: normal;">No Parent</label>
+                            </div>
+                          </li>
+                            @if (count($categoriesTree) > 0)
+                              @foreach ($categoriesTree as $categoryT)
+                                @include('admin.category.tree-dropdown', ['categoryT' => $categoryT, 'p_id' => $parent_id])
+                              @endforeach
+                            @endif
+                        </ul>
 
                         <label>Content</label>
                         <div class="input-group mb-3 title_row">

@@ -51,7 +51,8 @@ class CategoryController extends Controller
      */
     public function create()
     {
-        return view('admin.category.create');
+        $categoriesTree = self::categoriesTree();
+        return view('admin.category.create', compact('categoriesTree'));
     }
 
     /**
@@ -81,6 +82,7 @@ class CategoryController extends Controller
             Categories::create([
                 'name' => $request->category_name,
                 'slug' => Categories::generateSlug($request->category_name),
+                'parent_id' => ($request->parent_category > 0) ? $request->parent_category : NULL,
                 'content' => $request->content ?? null,
                 'page_title' => $request->page_title ?? null,
                 'metadata' => $request->metadata ?? null,
@@ -116,7 +118,8 @@ class CategoryController extends Controller
     public function edit($uuid)
     {
         $category = Categories::with('blogs')->where('uuid', $uuid)->first();
-        return view('admin.category.edit', compact('category'));
+        $categoriesTree = self::categoriesTree($uuid);
+        return view('admin.category.edit', compact('category', 'categoriesTree'));
     }
 
     /**
@@ -142,6 +145,7 @@ class CategoryController extends Controller
             $slug_editable = $request->slug_editable ?? 0;
             $slug_modify = $request->slug_modify ?? 0;
             $category_slug = $request->category_slug ?? '';
+            $parent_category = $request->parent_category ?? NULL;
             $content = $request->content ?? null;
             $page_title = $request->page_title ?? null;
             $metadata = $request->metadata ?? null;
@@ -175,6 +179,7 @@ class CategoryController extends Controller
             if($slug_editable || $slug_modify){
                 $category->slug = $category_slug;
             }
+            $category->parent_id = ($parent_category > 0) ? $parent_category : NULL;
             $category->content = $content;
             $category->page_title = $page_title;
             $category->metadata = $metadata;
@@ -270,5 +275,14 @@ class CategoryController extends Controller
         }
 
         return response()->json($response);
+    }
+
+    private static function categoriesTree($explode_uuid = null){
+        if( !is_null($explode_uuid) ){
+            return Categories::where('uuid', '<>', $explode_uuid)->tree()->get()->toTree();
+        }
+        else{
+            return Categories::tree()->get()->toTree();
+        }
     }
 }

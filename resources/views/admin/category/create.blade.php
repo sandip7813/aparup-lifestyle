@@ -1,6 +1,8 @@
 @extends('admin.layouts.app')
 
 @section('styles')
+<!-- iCheck for checkboxes and radio inputs -->
+<link rel="stylesheet" href="{{ asset('admin/plugins/icheck-bootstrap/icheck-bootstrap.min.css') }}">
 <link rel="stylesheet" href="{{ asset('admin/plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css') }}">
 <!-- summernote -->
 <link rel="stylesheet" href="{{ asset('admin/plugins/summernote/summernote-bs4.min.css') }}">
@@ -45,6 +47,23 @@
                             <input type="text" name="category_name" class="form-control mr-2" placeholder="Category Title">
                         </div>
 
+                        <div class="mb-5 mt-2 title_row">
+                        <label>Select Parent Category</label>
+                        <ul>
+                          <li class="pt-2 pb-2" style="list-style-type:none;">
+                            <div class="icheck-success d-inline mr-5">
+                              <input type="radio" name="parent_category" id="parent_category_0" value="0">
+                              <label for="parent_category_0" style="font-weight: normal;">No Parent</label>
+                            </div>
+                          </li>
+                            @if (count($categoriesTree) > 0)
+                              @foreach ($categoriesTree as $categoryT)
+                                @include('admin.category.tree-dropdown', ['categoryT' => $categoryT, 'p_id' => 0])
+                              @endforeach
+                            @endif
+                        </ul>
+                      </div>
+
                         <label>Content</label>
                         <textarea name="content" id="content"></textarea>
 
@@ -85,8 +104,6 @@
 @endsection
 
 @section('scripts')
-<script src="{{ asset('js/sweetalert2@11.js') }}"></script>
-<script src="{{ asset('admin/plugins/sweetalert2/sweetalert2.min.js') }}"></script>
 <!-- Summernote -->
 <script src="{{ asset('admin/plugins/summernote/summernote-bs4.min.js') }}"></script>
 

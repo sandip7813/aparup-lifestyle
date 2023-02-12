@@ -10,9 +10,11 @@ use App\Models\Blogs;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+use Staudenmeir\LaravelAdjacencyList\Eloquent\HasRecursiveRelationships;
+
 class Categories extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, HasRecursiveRelationships;
 
     protected $fillable = ['name', 'slug', 'parent_id', 'content', 'page_title', 'metadata', 'keywords'];
 
