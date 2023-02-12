@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 use App\Models\Categories;
+use App\Models\BlogContents;
 
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -14,7 +15,7 @@ class Blogs extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $fillable = ['title', 'slug', 'content', 'page_title', 'metadata', 'keywords'];
+    protected $fillable = ['title', 'slug', 'content', 'page_title', 'metadata', 'keywords', 'status'];
 
     public static function boot(){
         parent::boot();
@@ -37,6 +38,10 @@ class Blogs extends Model
 
     public function categories(){
         return $this->belongsToMany(Categories::class);
+    }
+
+    public function contents(){
+        return $this->hasMany(BlogContents::class, 'blog_uuid', 'uuid');
     }
 
     public static function generateSlug($name){

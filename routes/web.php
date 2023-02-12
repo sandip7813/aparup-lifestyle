@@ -58,7 +58,8 @@ Route::middleware(['auth'])->prefix('admin')->group(function(){
 
     //+++++++++++++++++++++++++ BLOGS :: Start +++++++++++++++++++++++++//
     Route::get('blogs', [BlogController::class, 'index'])->name('admin.blog.index');
-    Route::get('blog/create', [BlogController::class, 'create'])->name('admin.blog.create');
+    Route::get('blog/redirect-to-create', [BlogController::class, 'redirectToCreate'])->name('admin.blog.redirect-to-create');
+    Route::get('blog/{uuid}/create', [BlogController::class, 'create'])->name('admin.blog.create');
     Route::post('blog/submit', [BlogController::class, 'blogSubmit'])->name('admin.blog.submit');
     Route::post('blog/change-status', [BlogController::class, 'changeStatus'])->name('admin.blog.change-status');
     Route::post('blog/delete-item', [BlogController::class, 'deleteBlog'])->name('admin.blog.delete-item');
@@ -66,6 +67,14 @@ Route::middleware(['auth'])->prefix('admin')->group(function(){
     Route::get('blog/{uuid}/edit', [BlogController::class, 'edit'])->name('admin.blog.edit');
     Route::post('blog/regenerate-slug', [BlogController::class, 'regenerateSlug'])->name('admin.blog.regenerate-slug');
     Route::post('blog/update-submit', [BlogController::class, 'updateBlogSubmit'])->name('admin.blog.update-submit');
+    Route::post('blog/add-blog-content', [BlogController::class, 'addBlogContent'])->name('admin.blog.add-blog-content');
+    Route::post('blog/add-blog-content-images', [BlogController::class, 'addBlogContentImages'])->name('admin.blog.add-blog-content-images');
+    Route::post('blog/upload-blog-content-image', [BlogController::class, 'uploadBlogContentImage'])->name('admin.blog.upload-blog-content-image');
+    Route::post('blog/delete-blog-content-image-row', [BlogController::class, 'deleteBlogContentImageRow'])->name('admin.blog.delete-blog-content-image-row');
+    Route::get('blog/download-blog-content-image', [BlogController::class, 'downloadBlogContentImage'])->name('admin.blog.download-blog-content-image');
+    Route::post('blog/save-blog-content-image-fields', [BlogController::class, 'saveBlogContentImageFields'])->name('admin.blog.save-blog-content-image-fields');
+    Route::post('blog/save-blog-content-fields', [BlogController::class, 'saveBlogContentFields'])->name('admin.blog.save-blog-content-fields');
+    Route::post('blog/delete-blog-content-row', [BlogController::class, 'deleteBlogContentRow'])->name('admin.blog.delete-blog-content-row');
     //+++++++++++++++++++++++++ BLOGS :: End +++++++++++++++++++++++++//
 });
 //+++++++++++++++++++++++ ADMIN ROUTE :: End +++++++++++++++++++++++//

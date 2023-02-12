@@ -17,14 +17,14 @@ return new class extends Migration
             $table->id();
             $table->string('uuid')->unique();
             $table->enum('page_type', ['blog_page', 'static_page'])->default('blog_page')->nullable();
-            $table->string('title');
-            $table->string('slug')->unique();
-            $table->longText('content');
+            $table->string('title')->nullable();
+            $table->string('slug')->unique()->nullable();
+            $table->longText('content')->nullable();
             $table->text('short_content')->nullable();
             $table->string('page_title', 255)->nullable();
             $table->text('metadata')->nullable();
             $table->text('keywords')->nullable();
-            $table->enum('status', [0, 1])->nullable()->default(1);
+            $table->enum('status', [0, 1, 2])->nullable()->default(1)->comment('0 = inactive, 1 = active, 2 = drafted');
             $table->integer('created_by')->nullable();
             $table->integer('updated_by')->nullable();
             $table->timestamps();

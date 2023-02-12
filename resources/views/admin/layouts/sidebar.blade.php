@@ -67,7 +67,7 @@
                 </a>
               </li>
               <li class="nav-item">
-                <a href="{{ route('admin.blog.create') }}" class="nav-link @if (Request::is('admin/blog/create')) active @endif">
+                <a href="{{ route('admin.blog.redirect-to-create') }}" class="nav-link @if (Request::is('admin/blog/create')) active @endif">
                   <i class="far fa-circle nav-icon"></i>
                   <p>Post Blog</p>
                 </a>
