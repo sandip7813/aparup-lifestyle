@@ -54,7 +54,7 @@
                             <select name="blog_category" class="form-control select2bs4 select2_dropdown" style="width: 100%;">
                               <option value="">Select Category</option>
                               @foreach($categories as $cat)
-                                <option value="{{ $cat->id }}" @if( request('blog_category') == $cat->id ) selected @endif>{{ $cat->name }}</option>
+                                <option value="{{ $cat->id }}" @if( request('blog_category', null) == $cat->id ) selected @endif>{{ $cat->name }}</option>
                               @endforeach
                             </select>
                           </div>
@@ -64,7 +64,7 @@
                           <select name="blog_status" class="form-control select2bs4 select2_dropdown" style="width: 100%;">
                             <option value="">Select Status</option>
                             @foreach($statusArray as $status_key => $status_val)
-                              <option value="{{ $status_key }}" @if( request('blog_status') == $status_key ) selected @endif>{{ $status_val }}</option>
+                              <option value="{{ $status_key }}" @if( request('blog_status', '') == $status_key ) selected @endif>{{ $status_val }}</option>
                             @endforeach
                           </select>
                         </div>
@@ -93,24 +93,32 @@
                   </thead>
                     <tbody>
                       @foreach($blogs as $num => $blog)
-                        <tr id="tr_{{ $blog->uuid }}">
+                        @php
+                        $category_names_array = ( $blog->categories()->count() > 0 ) ? $blog->categories()->pluck('name')->toArray() : [];
+                        $category_names = ( count($category_names_array) > 0 ) ? implode(', ', $category_names_array) : '';
+                        @endphp
+                        <tr class="{{ $statusColorClass[$blog->status] }}" id="tr_{{ $blog->uuid }}">
                           <td>
-                            @if( $blog->banner->title )
-                              <img src="{{ asset('images/blog_banners/200x160/' . $blog->banner->title) }}" style="width: 100px;">
+                            @if( isset($blog->banner->name) )
+                              <img src="{{ asset('images/blogs/200x160/' . $blog->banner->name) }}" style="width: 100px;">
+                            @else
+                              <img src="{{ asset('images/no-image.png') }}" style="width: 100px;">
                             @endif
                           </td>
                           <td>{{ $blog->title }}</td>
                           <td>{{ $blog->slug }}</td>
-                          <td>{{ $blog->category->name ?? '' }}</td>
-                          <td>
-                            <input type="checkbox" name="blog_status" class="status_toggle" data-onstyle="success" data-offstyle="danger" data-on="Active" data-off="Inactive" data-size="mini" data-width="80" data-uuid="{{ $blog->uuid }}" @if($blog->status == 1) checked @endif data-toggle="toggle">
-                          </td>
+                          <td>{{ $category_names }}</td>
+                          <td>{{ $statusArray[$blog->status] }}</td>
                           <td>
                             <div>
                               <a href="{{ route('admin.blog.edit', $blog->uuid) }}" data-toggle="tooltip" data-placement="top" title="Edit this Blog info"><i class="fas fa-edit"></i></a>
                               &nbsp;&nbsp;&nbsp;
-                              <a href="javascript: void(0);" data-toggle="tooltip" data-placement="top" title="Change the Banner Image" class="open_banner_upload_modal" data-uuid="{{ $blog->uuid }}" data-num="{{ $num }}"><i class="fas fa-upload"></i></a>
+                              <a href="javascript: void(0);" data-toggle="tooltip" data-placement="top" title="Upload / Change the Banner Image" class="open_banner_upload_modal" data-uuid="{{ $blog->uuid }}" data-num="{{ $num }}"><i class="fas fa-upload"></i></a>
                               &nbsp;&nbsp;&nbsp;
+                              @if( isset($blog->banner->name) )
+                              <a href="javascript: void(0);" data-toggle="tooltip" data-placement="top" title="Download Banner Image" class="download_banner_image" data-blog-uuid="{{ $blog->uuid }}" data-image-uuid="{{ $blog->banner->uuid }}" data-num="{{ $num }}" data-original-name="{{ $blog->banner->name }}"><i class="fas fa-download"></i></a>
+                              &nbsp;&nbsp;&nbsp;
+                              @endif
                               <a href="javascript: void(0);" data-toggle="tooltip" data-placement="top" title="Delete this Blog" class="delete_blog" data-uuid="{{ $blog->uuid }}"><i class="fas fa-trash-alt"></i></a>
                             </div>
                           </td>
@@ -221,13 +229,15 @@
       blog_num = this_obj.data('num');
 
       blog = blogs.data[blog_num];
-      banner_image = $('<img />').attr('src', "{{ asset('images/blog_banners/1000x600/') }}/" + blog.banner.title).css('max-width', '750px');
+      banner_title = ( (typeof blog.banner !== 'undefined') && (blog.banner != null) ) ? blog.banner.name : null;
+      banner_image = ( banner_title != null ) ? "{{ asset('images/blogs/1000x600/') }}/" + banner_title : "{{ asset('images/no-image.png') }}";
+      banner_image_html = $('<img />').attr('src', banner_image).css('max-width', '750px');
       $('input[name="blog_modal_uuid"]').val(blog_uuid);
 
       change_banner_modal.modal({ show: true, backdrop: 'static', keyboard: false });
 
-      $('#banner_modal_title').html(blog.title);
-      $('#banner_modal_image').html(banner_image);
+      $('#banner_modal_title').html(blog.title ?? 'No Title');
+      $('#banner_modal_image').html(banner_image_html);
 
       banner_modal_overlay.hide();
     });
@@ -238,35 +248,6 @@
         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
       }
     });
-
-    //+++++++++++++++++++ UPDATE BLOG STATUS :: Start +++++++++++++++++++//
-    $('.status_toggle').on('change', function(){
-      this_obj = $(this);
-      blog_uuid = this_obj.data('uuid');
-
-      this_obj.bootstrapToggle('disable');
-
-      $.ajax({
-        dataType: 'json',
-        type: 'POST',
-        data:{
-          blog_uuid: blog_uuid
-        },
-        url: "{{ route('admin.blog.change-status') }}",
-        success:function(data) {
-          this_obj.bootstrapToggle('enable');
-
-          if( data.status == 'failed' ){
-            swal_fire_error(data.error.message);
-            return false;
-          }
-          else if( data.status == 'success' ){
-            swal_fire_success('Blog status updated successfully!');
-          }
-        }
-      });
-    });
-    //+++++++++++++++++++ UPDATE BLOG STATUS :: End +++++++++++++++++++//
 
     //+++++++++++++++++++ DELETE BLOG :: Start +++++++++++++++++++//
     $('.delete_blog').on('click', function(){
@@ -334,16 +315,47 @@
             swal_fire_success('Banner changed successfully!');
             change_banner_form[0].reset();
 
-            banner_image = $('<img />').attr('src', "{{ asset('images/blog_banners/1000x600/') }}/" + data.banner_title).css('max-width', '750px');
+            banner_image = $('<img />').attr('src', "{{ asset('images/blogs/1000x600/') }}/" + data.banner_title).css('max-width', '750px');
             $('#banner_modal_image').html(banner_image);
 
-            thumbnail_image = $('<img />').attr('src', "{{ asset('images/blog_banners/200x160/') }}/" + data.banner_title).css('width', '100px');
+            thumbnail_image = $('<img />').attr('src', "{{ asset('images/blogs/200x160/') }}/" + data.banner_title).css('width', '100px');
             $('#tr_' + blog_uuid + ' td:first').html(thumbnail_image);
           }
         }
       });
     });
     //+++++++++++++++++++ CHANGE BANNER IMAGE :: End +++++++++++++++++++//
+
+    @if( isset($blog->banner->name) )
+      //+++++++++++++++++++ DOWNLOAD BANNER IMAGE :: Start +++++++++++++++++++//
+      $('.download_banner_image').on('click', function(e){
+        thisObj = $(this);
+
+        blog_uuid = thisObj.data('blog-uuid');
+        image_uuid = thisObj.data('image-uuid');
+        original_name = thisObj.data('original-name');
+
+        $.ajax({
+              type: 'GET',
+              data: {
+                blog_uuid: blog_uuid,
+                image_uuid: image_uuid
+              },
+              xhrFields: {
+                  responseType: 'blob'
+              },
+              url: "{{ route('admin.blog.download-banner-image') }}",
+              success:function(data) {
+                var blob = new Blob([data]);
+                var link = document.createElement('a');
+                link.href = window.URL.createObjectURL(blob);
+                link.download = original_name;
+                link.click();
+              }
+        });
+      });
+      //+++++++++++++++++++ DOWNLOAD BANNER IMAGE :: End +++++++++++++++++++//
+    @endif
 
   });
 

@@ -13,7 +13,7 @@ class Medias extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'source_type', 'source_uuid', 'name', 'is_active'];
+    protected $fillable = ['user_id', 'media_type', 'source_uuid', 'name', 'is_active'];
 
     public static function boot(){
         parent::boot();

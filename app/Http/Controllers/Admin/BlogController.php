@@ -10,6 +10,8 @@ use App\Models\Blogs;
 use App\Models\Medias;
 use App\Models\BlogContents;
 
+use Auth;
+
 use Illuminate\Support\Str;
 use Validator;
 use Image;
@@ -21,8 +23,15 @@ class BlogController extends Controller
     public $categories;
 
     protected $statusArray = [
-        1 => 'Avtive',
+        1 => 'Active',
         0 => 'Inactive',
+        2 => 'Drafted',
+    ];
+
+    protected $statusColorClass = [
+        1 => 'table-success',
+        0 => 'table-danger',
+        2 => 'table-light',
     ];
 
     public function __construct(){
@@ -30,26 +39,30 @@ class BlogController extends Controller
     }
 
     public function index(Request $request){
-        $blogs_qry = Blogs::with(['category', 'banner'])->where('page_type', 'blog_page');
+        $blogs_qry = Blogs::with(['categories', 'banner'])->where('page_type', 'blog_page');
 
         if( $request->filled('blog_title') ){
             $blogs_qry->where('title', 'like', '%' . $request->blog_title . '%');
         }
 
         if( $request->filled('blog_category') ){
-            $blogs_qry->where('category_id', $request->blog_category);
+            $category_id = $request->blog_category;
+            $blogs_qry->whereHas('categories', function ($q) use ($category_id) {
+                $q->where('id', $category_id);
+            });
         }
 
         if( $request->filled('blog_status') ){
             $blogs_qry->where('status', $request->blog_status);
         }
 
-        $blogs = $blogs_qry->orderby('id','desc')->paginate(10);
-
+        $blogs = $blogs_qry->orderby('updated_at','desc')->paginate(10);
+        
         return view('admin.blog.index')->with([
                                         'blogs' => $blogs, 
                                         'categories' => $this->categories,
-                                        'statusArray' => $this->statusArray
+                                        'statusArray' => $this->statusArray,
+                                        'statusColorClass' => $this->statusColorClass
                                     ]);
     }
 
@@ -59,17 +72,62 @@ class BlogController extends Controller
     }
 
     public function create($uuid){
-        $blog = Blogs::with('contents')->where('uuid', $uuid)->first();
+        $blog = Blogs::with(['categories', 'contents'])
+                        ->where('uuid', $uuid)
+                        ->where('page_type', 'blog_page')
+                        ->first();
+        
 
         if( !isset($blog->id) ){
             abort(404);
         }
 
-        return view('admin.blog.create')->with([
+        return view('admin.blog.create', compact('blog'))->with([
                                             'categories' => $this->categories,
                                             'blog_uuid' => $uuid,
-                                            'blog' => $blog
+                                            'post_type' => 'create'
                                         ]);
+    }
+
+    public function edit($uuid){
+        $blog = Blogs::with(['categories', 'contents'])
+                        ->where('uuid', $uuid)
+                        ->where('page_type', 'blog_page')
+                        ->first();
+
+        if( !isset($blog->id) ){
+            abort(404);
+        }
+
+        return view('admin.blog.create', compact('blog'))->with([
+                                            'categories' => $this->categories,
+                                            'blog_uuid' => $uuid,
+                                            'post_type' => 'edit'
+                                        ]);
+    }
+
+    public function regenerateSlug(Request $request){
+        $response = [];
+
+        $response['status'] = '';
+        $response['blog_slug'] = '';
+
+        try {
+            $blog_title = $request->blog_title ?? '';
+
+            if( $blog_title == '' ){
+                return response()->json(['status' => 'failed', 'error' => ['message' => 'No blog title found!']]);
+            }
+
+            $response['blog_slug'] = Blogs::generateSlug($blog_title);           
+            $response['status'] = 'success';
+
+        } catch (\Exception $e) {
+            report($e);
+            return response()->json(['status' => 'failed', 'error' => ['message' => $e->getMessage()], 'e' => $e]);
+        }
+
+        return response()->json($response);
     }
 
     public function blogSubmit(Request $request){
@@ -78,13 +136,37 @@ class BlogController extends Controller
         $response['status'] = '';
 
         try {
+            $post_type = $request->post_type ?? null;
+            $blog_uuid = $request->blog_uuid ?? null;
+            $blog_title = $request->blog_title ?? null;
+
+            if( $post_type == 'edit' ){
+                $slug_editable = $request->slug_editable ?? 0;
+                $slug_modify = $request->slug_modify ?? 0;
+                $blog_slug = $request->blog_slug ?? null;
+            }
+
+            $blog = Blogs::with(['categories', 'banner'])->where('uuid', $blog_uuid)->first();
+            $existing_blog_title = $blog->title ?? null;
+            
             $validator_array = [];
 
             $validator_array['blog_uuid'] = 'required';
-            $validator_array['blog_title'] = 'required|max:255';
-            $validator_array['blog_category'] = 'required';
-            $validator_array['blog_content'] = 'required';
-            $validator_array['banner'] = 'required|mimes:jpeg,jpg,png,gif|max:10000';
+
+            if( $request->blog_status != '2' ){
+                $validator_array['blog_title'] = 'required|max:255';
+                $validator_array['blog_category'] = 'required';
+                $validator_array['blog_content'] = 'required';
+            }
+
+            if( $post_type == 'edit' ){
+                if( ($slug_editable || $slug_modify) && is_null($blog_slug) && !is_null($existing_blog_title) ){
+                    $validator_array['blog_slug'] = 'required';
+                }
+            }
+
+            $validator_array['banner'] = 'mimes:jpeg,jpg,png,gif|max:10000';
+            $validator_array['blog_status'] = 'required';
 
             $validator = Validator::make($request->all(), $validator_array);
 
@@ -94,8 +176,61 @@ class BlogController extends Controller
                 return response()->json(['status' => 'failed', 'error' => ['message' => $validator_errors]]);
             }
 
+            if( ($post_type == 'edit') && !is_null($existing_blog_title) ){
+                $duplicate_slug = Blogs::withTrashed()
+                                        ->where('slug', $blog_slug)
+                                        ->where('uuid', '<>', $blog_uuid)
+                                        ->count();
+
+                if( $duplicate_slug > 0 ){
+                    return response()->json(['status' => 'failed', 'error' => ['message' => 'This slug can\'t be used!']]);
+                }
+            }
+
+            //+++++++++++++++++++++++++++ SAVE BLOG DETAILS :: Start +++++++++++++++++++++++++++//
+            $blog->title = $blog_title;
+
+            if( $post_type == 'create' ){
+                $blog->slug = Blogs::generateSlug($blog_title);
+            }
+            elseif( $post_type == 'edit' ){
+                if( ($slug_editable || $slug_modify) && !is_null($existing_blog_title) ){
+                    $blog->slug = $blog_slug;
+                }
+                elseif(!is_null($blog_title) && is_null($blog_slug)){
+                    $blog->slug = Blogs::generateSlug($blog_title);
+                }
+            }
+            $blog->content = $request->blog_content ?? null;
+            $blog->short_content = $request->short_content ?? null;
+            $blog->page_title = $request->page_title ?? null;
+            $blog->metadata = $request->metadata ?? null;
+            $blog->status = $request->blog_status ?? null;
+
+            $blog->save();
+            //+++++++++++++++++++++++++++ SAVE BLOG DETAILS :: End +++++++++++++++++++++++++++//
+
+            //+++++++++++++++++++++++++++ SAVE BLOG CATEGORIES :: Start +++++++++++++++++++++++++++//
+            $blog->categories()->detach();
+
+            $blog_category = $request->blog_category ?? [];
+            $blog->categories()->attach($blog_category);
+            //+++++++++++++++++++++++++++ SAVE BLOG CATEGORIES :: End +++++++++++++++++++++++++++//
+
             //+++++++++++++++++++++++++++ STORE & CROP IMAGES :: Start +++++++++++++++++++++++++++//
             if($request->hasFile('banner')) {
+                //------------- DELETE EXISTING IMAGES :: Start -------------//
+                $existingBanner = $blog->banner->name ?? null;
+
+                if( !is_null($existingBanner) ){
+                    File::delete( $bannerDir . 'main/' . $existingBanner );
+                    File::delete( $bannerDir . '1000x600/' . $existingBanner );
+                    File::delete( $bannerDir . '200x160/' . $existingBanner );
+
+                    $blog->banner->delete();
+                }
+                //------------- DELETE EXISTING IMAGES :: End -------------//
+                
                 $banner = Image::make($request->file('banner'));
 
                 $bannerName = time() . '-' . uniqid() . '.' . $request->file('banner')->getClientOriginalExtension();
@@ -117,53 +252,16 @@ class BlogController extends Controller
                 $banner->resize(200, 160);
                 $banner->save($destinationPathThumbnail . $bannerName);
                 //------------- 200 x 160 BANNER UPLOAD :: End -------------//
+
+                Medias::create([
+                    'user_id' => Auth::user()->id,
+                    'media_type' => 'blog_banner',
+                    'source_uuid' => $blog_uuid,
+                    'name' => $bannerName,
+                    'is_active' => 1
+                ]);
             }
             //+++++++++++++++++++++++++++ STORE & CROP IMAGES :: End +++++++++++++++++++++++++++//
-
-            $blog = Blogs::create([
-                        'uuid' => $request->blog_uuid,
-                        'category_id' => $request->blog_category,
-                        'title' => $request->blog_title,
-                        'slug' => Blogs::generateSlug($request->blog_title),
-                        'content' => $request->blog_content,
-                        'page_title' => $request->page_title ?? null,
-                        'metadata' => $request->metadata ?? null,
-                        'keywords' => $request->keywords ?? null,
-                    ]);
-            
-            Medias::create([
-                'user_id' => Auth::user()->id,
-                'source_type' => 'blog_banner',
-                'source_uuid' => $request->blog_uuid,
-                'name' => $bannerName,
-                'is_active' => 1
-            ]);
-
-            $response['status'] = 'success';
-        } catch (\Exception $e) {
-            report($e);
-            return response()->json(['status' => 'failed', 'error' => ['message' => $e->getMessage()], 'e' => $e]);
-        }
-
-        return response()->json($response);
-    }
-
-    public function changeStatus(Request $request){
-        $response = [];
-
-        $response['status'] = '';
-
-        try {
-            $blog_uuid = $request->blog_uuid ?? '';
-
-            if( $blog_uuid == '' ){
-                return response()->json(['status' => 'failed', 'error' => ['message' => 'No blog found!']]);
-            }
-
-            $blog = Blogs::where('uuid', $blog_uuid)->where('page_type', 'blog_page')->first();
-
-            $blog->status = ($blog->status == '1') ? '0' : '1';
-            $blog->save();            
 
             $response['status'] = 'success';
         } catch (\Exception $e) {
@@ -206,12 +304,14 @@ class BlogController extends Controller
                 $bannerDir = 'images/blogs/';
 
                 //------------- DELETE EXISTING IMAGES :: Start -------------//
-                $existingBanner = $blog->banner->title ?? null;
+                $existingBanner = $blog->banner->name ?? null;
 
                 if( !is_null($existingBanner) ){
                     File::delete( $bannerDir . 'main/' . $existingBanner );
                     File::delete( $bannerDir . '1000x600/' . $existingBanner );
                     File::delete( $bannerDir . '200x160/' . $existingBanner );
+
+                    $blog->banner->delete();
                 }
                 //------------- DELETE EXISTING IMAGES :: End -------------//
 
@@ -236,8 +336,13 @@ class BlogController extends Controller
                 $banner->save($destinationPathThumbnail . $bannerName);
                 //------------- 200 x 160 BANNER UPLOAD :: End -------------//
 
-                $blog->banner->title = $bannerName;
-                $blog->banner->save();
+                Medias::create([
+                    'user_id' => Auth::user()->id,
+                    'media_type' => 'blog_banner',
+                    'source_uuid' => $blog_uuid,
+                    'name' => $bannerName,
+                    'is_active' => 1
+                ]);
 
                 $response['banner_title'] = $bannerName;
                 $response['status'] = 'success';
@@ -266,100 +371,6 @@ class BlogController extends Controller
 
             $blog = Blogs::where('uuid', $blog_uuid)->where('page_type', 'blog_page')->first();
             $blog->delete();            
-
-            $response['status'] = 'success';
-        } catch (\Exception $e) {
-            report($e);
-            return response()->json(['status' => 'failed', 'error' => ['message' => $e->getMessage()], 'e' => $e]);
-        }
-
-        return response()->json($response);
-    }
-
-    public function edit($uuid){
-        $blog = Blogs::where('uuid', $uuid)->where('page_type', 'blog_page')->first();
-
-        return view('admin.blog.edit', compact('blog'))->with(['categories' => $this->categories]);
-    }
-
-    public function regenerateSlug(Request $request){
-        $response = [];
-
-        $response['status'] = '';
-        $response['blog_slug'] = '';
-
-        try {
-            $blog_title = $request->blog_title ?? '';
-
-            if( $blog_title == '' ){
-                return response()->json(['status' => 'failed', 'error' => ['message' => 'No blog title found!']]);
-            }
-
-            $response['blog_slug'] = Blogs::generateSlug($blog_title);           
-            $response['status'] = 'success';
-
-        } catch (\Exception $e) {
-            report($e);
-            return response()->json(['status' => 'failed', 'error' => ['message' => $e->getMessage()], 'e' => $e]);
-        }
-
-        return response()->json($response);
-    }
-
-    public function updateBlogSubmit(Request $request){
-        $response = [];
-
-        $response['status'] = '';
-
-        try {
-            $blog_uuid = $request->blog_uuid ?? '';
-
-            if( $blog_uuid == '' ){
-                return response()->json(['status' => 'failed', 'error' => ['message' => 'No blog found!']]);
-            }
-
-            $blog_title = $request->blog_title ?? '';
-            $slug_editable = $request->slug_editable ?? 0;
-            $blog_slug = $request->blog_slug ?? '';
-            $blog_category = $request->blog_category ?? '';
-            $blog_content = $request->blog_content ?? '';
-            $page_title = $request->page_title ?? NULL;
-            $metadata = $request->metadata ?? NULL;
-            $keywords = $request->keywords ?? NULL;
-            $blog_status = $request->blog_status ?? null;
-
-            if( empty($blog_title) ){
-                return response()->json(['status' => 'failed', 'error' => ['message' => 'No blog title found!']]);
-            }
-
-            if( empty($blog_slug) ){
-                return response()->json(['status' => 'failed', 'error' => ['message' => 'No blog slug found!']]);
-            }
-
-            $duplicate_slug = Blogs::withTrashed()
-                                    ->where('slug', $blog_slug)
-                                    ->where('uuid', '<>', $blog_uuid)
-                                    ->count();
-
-            if( $duplicate_slug > 0 ){
-                return response()->json(['status' => 'failed', 'error' => ['message' => 'This slug can\'t be used!']]);
-            }
-
-            if( is_null($blog_status) ){
-                return response()->json(['status' => 'failed', 'error' => ['message' => 'Invalid blog status']]);
-            }
-
-            $blog = Blogs::where('uuid', $blog_uuid)->where('page_type', 'blog_page')->first();
-
-            $blog->title = $blog_title;
-            $blog->slug = $blog_slug;
-            $blog->category_id = $blog_category;
-            $blog->content = $blog_content;
-            $blog->page_title = $page_title;
-            $blog->metadata = $metadata;
-            $blog->keywords = $keywords;
-            $blog->status = $blog_status;
-            $blog->save();            
 
             $response['status'] = 'success';
         } catch (\Exception $e) {
@@ -583,8 +594,9 @@ class BlogController extends Controller
             $imageDir = 'images/blogs/main/';
             $destinationPath = public_path($imageDir);
             $imagePath = $destinationPath . $image_name;
-
-            $imageMimeType = $imagePath->getClientMimeType();
+            
+            //$imageMimeType = $imagePath->getClientMimeType();
+            $imageMimeType = File::mimeType($imagePath);
             $headers = ['Content-Type: ' . $imageMimeType];
   
             return response()->download($imagePath, $image_name, $headers);
@@ -616,13 +628,15 @@ class BlogController extends Controller
             $image_uuid = $request->image_uuid ?? null;
             $image_url = $request->image_url ?? null;
             $image_alt_tag = $request->image_alt_tag ?? null;
+            $image_copyright = $request->image_copyright ?? null;
 
             $blog_content = BlogContents::where('uuid', $content_uuid)->first();
             $blog_images = $blog_content->images ?? [];
 
             $img_array = [
                             'affiliate_url' => $image_url,
-                            'alt_tag' => $image_alt_tag
+                            'alt_tag' => $image_alt_tag,
+                            'copyright' => $image_copyright
                         ];
             
             $blog_images[$image_uuid] = array_merge($blog_images[$image_uuid], $img_array);
@@ -640,6 +654,7 @@ class BlogController extends Controller
             $response['status'] = 'success';
             $response['image_url'] = $blog_images[$image_uuid]['affiliate_url'] ?? '';
             $response['image_alt_tag'] = $blog_images[$image_uuid]['alt_tag'] ?? '';
+            $response['image_copyright'] = $blog_images[$image_uuid]['copyright'] ?? '';
         } catch (\Exception $e) {
             report($e);
             return response()->json(['status' => 'failed', 'error' => ['message' => $e->getMessage()], 'e' => $e]);
@@ -733,6 +748,53 @@ class BlogController extends Controller
         }
 
         return response()->json($response);
+    }
+
+    public function downloadBannerImage(Request $request){
+        $response = [];
+
+        $response['status'] = '';
+
+        try {
+            $validator = Validator::make($request->all(), [
+                'blog_uuid' => 'required',
+                'image_uuid' => 'required',
+            ]);
+
+            $validator_errors = implode('<br>', $validator->errors()->all());
+    
+            if ($validator->fails()) {
+                return response()->json(['status' => 'failed', 'error' => ['message' => $validator_errors]]);
+            }
+
+            $blog_uuid = $request->blog_uuid ?? null;
+            $image_uuid = $request->image_uuid ?? null;
+
+            //++++++++++++++ DOWNLOAD IMAGE :: Start ++++++++++++++//
+            $blog_image = Medias::where('media_type', 'blog_banner')
+                                    ->where('uuid', $image_uuid)
+                                    ->where('source_uuid', $blog_uuid)
+                                    ->first();
+            
+            $image_name = $blog_image->name ?? null;
+
+            if( is_null($image_name) ){
+                return response()->json(['status' => 'failed', 'error' => ['message' => 'No image found!']]);
+            }
+
+            $imageDir = 'images/blogs/main/';
+            $destinationPath = public_path($imageDir);
+            $imagePath = $destinationPath . $image_name;
+            
+            $imageMimeType = File::mimeType($imagePath);
+            $headers = ['Content-Type: ' . $imageMimeType];
+  
+            return response()->download($imagePath, $image_name, $headers);
+            //++++++++++++++ DOWNLOAD IMAGE :: End ++++++++++++++//
+        } catch (\Exception $e) {
+            report($e);
+            return response()->json(['status' => 'failed', 'error' => ['message' => $e->getMessage()], 'e' => $e]);
+        }
     }
 
 }

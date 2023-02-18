@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 use App\Models\Categories;
 use App\Models\BlogContents;
+use App\Models\Medias;
 
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -42,6 +43,10 @@ class Blogs extends Model
 
     public function contents(){
         return $this->hasMany(BlogContents::class, 'blog_uuid', 'uuid');
+    }
+
+    public function banner(){
+        return $this->hasOne(Medias::class, 'source_uuid', 'uuid')->where('media_type', 'blog_banner');
     }
 
     public static function generateSlug($name){

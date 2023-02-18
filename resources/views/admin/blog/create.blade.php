@@ -1,5 +1,9 @@
 @extends('admin.layouts.app')
 
+@php
+$category_ids = ( $blog->categories()->count() > 0 ) ? $blog->categories()->pluck('id')->toArray() : [];
+@endphp
+
 @section('styles')
 <!-- iCheck for checkboxes and radio inputs -->
 <link rel="stylesheet" href="{{ asset('admin/plugins/icheck-bootstrap/icheck-bootstrap.min.css') }}">
@@ -48,26 +52,45 @@
                 <div class="card-body">
                   <label>Blog Title</label>
                   <div class="input-group mb-3 title_row">
-                    <input type="text" name="blog_title" class="form-control mr-2" placeholder="Blog Title">
+                    <input type="text" name="blog_title" class="form-control mr-2" placeholder="Blog Title" value="{{ $blog->title }}">
+
+                    @if($post_type == 'edit')
+                    <div class="icheck-primary d-inline">
+                        <input type="checkbox" name="slug_modify" id="slug_modify" value="1" data-toggle="tooltip" data-placement="top" title="Check this box to regenerate the slug.">
+                        <label for="slug_modify"></label>
+                    </div>
+                    @endif
                   </div>
 
+                  @if($post_type == 'edit')
+                  <label>Blog Slug</label>
+                  <div class="input-group mb-3 title_row">
+                      <input type="text" name="blog_slug" class="form-control mr-2" value="{{ $blog->slug }}" placeholder="Blog Slug" disabled>
+
+                      <div class="icheck-primary d-inline">
+                          <input type="checkbox" name="slug_editable" id="slug_editable" value="1" data-toggle="tooltip" data-placement="top" title="Check this box to make the slug field editable.">
+                          <label for="slug_editable"></label>
+                      </div>
+                  </div>
+                  @endif
+
                   @if( $categories )
-                    <label>Select Category</label>
+                    <label>Select Categories</label>
                     <div class="form-group">
-                      <select name="blog_category" id="blog_category" class="form-control select2bs4" style="width: 100%;">
+                      <select name="blog_category[]" id="blog_category" class="select2" multiple="multiple" data-placeholder="Select Categories" style="width: 100%;">
                         @foreach($categories as $cat)
-                          <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+                          <option value="{{ $cat->id }}" @if( in_array($cat->id, $category_ids) ) selected @endif>{{ $cat->name }}</option>
                         @endforeach
                       </select>
                     </div>
                   @endif
 
                   <label>Blog Content</label>
-                  <textarea name="blog_content" id="blog_content" class="blog_content_field"></textarea>
+                  <textarea name="blog_content" id="blog_content" class="main_content_field">{{ $blog->content }}</textarea>
                   
                   <label>Upload Banner</label>
                   <div class="input-group mb-3 title_row">
-                    <input class="form-control" type="file" name="banner">
+                    <input class="form-control" type="file" name="banner" id="blog_banner">
                   </div>
                   
                   @if( isset($blog->contents) && $blog->contents->count() > 0 )
@@ -86,24 +109,34 @@
 
                   <label>Page Title</label>
                   <div class="input-group mb-3 title_row">
-                    <input type="text" name="page_title" class="form-control mr-2" placeholder="Page Title">
+                    <input type="text" name="page_title" class="form-control mr-2" placeholder="Page Title" value="{{ $blog->page_title }}">
                   </div>
 
                   <label>Meta Data</label>
                   <div class="input-group mb-3 title_row">
-                    <textarea name="metadata" id="metadata" class="form-control" rows="3" placeholder="Enter Meta Data"></textarea>
+                    <textarea name="metadata" id="metadata" class="form-control" rows="3" placeholder="Enter Meta Data">{{ $blog->metadata }}</textarea>
                   </div>
 
-                  <label>Keywords</label>
+                  <label>Save Blog As</label>
                   <div class="input-group mb-3 title_row">
-                    <textarea name="keywords" id="keywords" class="form-control" rows="3" placeholder="Enter Keywords"></textarea>
+                    <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                      <label class="btn bg-olive @if($blog->status == '1') active @endif">
+                        <input type="radio" name="blog_status" id="blog_active" autocomplete="off" value="1" @if($blog->status == '1') checked @endif> Active
+                      </label>
+                      <label class="btn bg-olive @if($blog->status == '0') active @endif">
+                        <input type="radio" name="blog_status" id="blog_inactive" autocomplete="off" value="0" @if($blog->status == '0') checked @endif> Inactive
+                      </label>
+                      <label class="btn bg-olive @if($blog->status == '2') active @endif">
+                        <input type="radio" name="blog_status" id="blog_draft" autocomplete="off" value="2" @if($blog->status == '2') checked @endif> Draft
+                      </label>
+                    </div>
                   </div>
+
                 </div>
 
                 <!-- /.card-body -->
                 <div class="card-footer">
-                    <button type="submit" class="btn btn-success float-right" id="post-blog-btn">Submit</button>
-                    <button type="submit" class="btn btn-warning float-right mr-2" id="post-blog-btn">Draft</button>
+                    <button type="submit" class="btn btn-success float-right submit_btn" id="submit-blog-btn">Submit</button>
                 </div>
               </form>
             </div>
@@ -127,11 +160,17 @@
 <script src="{{ asset('admin/plugins/summernote/summernote-bs4.min.js') }}"></script>
 <script>
   $(function () {
-    blog_content = $('.blog_content_field');
+    blog_content = $('.blog_content_field, .main_content_field');
     blog_category = $('#blog_category');
     post_blog_form = $('#post-blog-form');
     blog_uuid = $('#blog_uuid').val();
     add_content_block = $('#add-content-block');
+
+    @if($post_type == 'edit')
+      slug_modify_field = $('input[name="slug_modify"]');
+      slug_editable_field = $('input[name="slug_editable"]');
+      blog_slug_field = $('input[name="blog_slug"]');
+    @endif
 
     blog_category.select2({
       theme: 'bootstrap4'
@@ -146,13 +185,47 @@
       }
     });
 
+    @if($post_type == 'edit')
+      //++++++++++++++++++++ REGENERATE SLUG :: Start ++++++++++++++++++++//
+      $('input[name="blog_title"]').on('blur', function(){
+        blog_title = $(this).val().trim();
+
+        if( slug_modify_field.is(':checked') ){
+          regenerate_slug();
+        }
+        else{
+          blog_slug_field.val('{{ $blog->slug }}');
+        }
+      });
+
+      slug_modify_field.on('change', function(){
+        if( $(this).is(':checked') ){
+          regenerate_slug();
+        }
+        else{
+          blog_slug_field.val('{{ $blog->slug }}');
+        }
+      });
+      //++++++++++++++++++++ REGENERATE SLUG :: End ++++++++++++++++++++//
+
+      $('input[name="slug_editable"]').on('change', function(){
+        if( $(this).is(':checked') ){
+          blog_slug_field.prop('disabled', false);
+        }
+        else{
+          blog_slug_field.val('{{ $blog->slug }}').prop('disabled', true);
+        }
+      });
+    @endif
+
     //+++++++++++++++ POST BLOG :: Start +++++++++++++++//
     post_blog_form.submit(function(e){
       this_obj = $(this);
-      submit_btn = $('#post-blog-btn');
+      submit_btn = $('#submit-blog-btn');
 
       e.preventDefault();
       var formData = new FormData(this);
+      formData.append('post_type', '{{ $post_type }}');
 
       submit_btn.html('<i class="fa fa-spinner" aria-hidden="true"></i> Submitting...').attr('disabled', true);
 
@@ -165,6 +238,7 @@
         contentType: false,
         processData: false,
         success:function(data) {
+          $('#blog_banner').val('');
           submit_btn.html('Submit').attr('disabled', false);
 
           if( data.status == 'failed' ){
@@ -172,9 +246,11 @@
             return false;
           }
           else if( data.status == 'success' ){
-            swal_fire_success('Blog created successfully!');
-            post_blog_form[0].reset();
-            blog_content.summernote('reset');
+            @if($post_type == 'create')
+              swal_fire_success('Blog created successfully!');
+            @elseif($post_type == 'edit')
+              swal_fire_success('Blog updated successfully!');
+            @endif
           }
         }
       });
@@ -362,9 +438,11 @@
 
       image_url_field = $('input[name="image_url[' + image_uuid + ']"]');
       image_alt_tag_field = $('input[name="image_alt_tag[' + image_uuid + ']"]');
+      image_copyright_field = $('input[name="image_copyright[' + image_uuid + ']"]');
 
       image_url = image_url_field.val().trim();
       image_alt_tag = image_alt_tag_field.val().trim();
+      image_copyright = image_copyright_field.val().trim();
 
       $.ajax({
             dataType: 'json',
@@ -373,12 +451,14 @@
               content_uuid: content_uuid,
               image_uuid: image_uuid,
               image_url: image_url,
-              image_alt_tag: image_alt_tag
+              image_alt_tag: image_alt_tag,
+              image_copyright: image_copyright
             },
             url: "{{ route('admin.blog.save-blog-content-image-fields') }}",
             success:function(data) {
               image_url_field.val(data.image_url);
               image_alt_tag_field.val(data.image_alt_tag);
+              image_copyright_field.val(data.image_copyright);
 
               if( data.status == 'failed' ){
                   swal_fire_error(data.error.message);
@@ -480,6 +560,30 @@
     //+++++++++++++++++++ DELETE IMAGE ROW :: End +++++++++++++++++++//
     
   });
+
+  @if($post_type == 'edit')
+    function regenerate_slug(){
+      blog_title = $('input[name="blog_title"]').val().trim();
+
+      $.ajax({
+        dataType: 'json',
+        type: 'POST',
+        data:{
+          blog_title: blog_title,
+        },
+        url: "{{ route('admin.blog.regenerate-slug') }}",
+        success:function(data) {
+          if( data.status == 'failed' ){
+            swal_fire_error(data.error.message);
+            return false;
+          }
+          else if( data.status == 'success' ){
+            blog_slug_field.val(data.blog_slug);
+          }
+        }
+      });
+    }
+  @endif
 
 </script>
 @endsection

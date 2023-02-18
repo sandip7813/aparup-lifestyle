@@ -8,9 +8,10 @@
             <input class="form-control content_image" type="file" name="content_image[{{ $blog_img['image_uuid'] }}]">
         @endif
     </div>
-    <div class="col col-sm-4"><input type="text" name="image_url[{{ $blog_img['image_uuid'] }}]" class="form-control mr-2 image_fields" placeholder="Image URL" value="{{ $blog_img['affiliate_url'] ?? '' }}"></div>
-    <div class="col col-sm-4">
-        <input type="text" name="image_alt_tag[{{ $blog_img['image_uuid'] }}]" class="form-control d-inline-block mr-2 image_fields" placeholder="Image Alt Tag" value="{{ $blog_img['alt_tag'] ?? '' }}" style="width:85%;">
+    <div class="col col-sm-3"><input type="text" name="image_url[{{ $blog_img['image_uuid'] }}]" class="form-control mr-2 image_fields" placeholder="Image URL" value="{{ $blog_img['affiliate_url'] ?? '' }}"></div>
+    <div class="col col-sm-3"><input type="text" name="image_alt_tag[{{ $blog_img['image_uuid'] }}]" class="form-control mr-2 image_fields" placeholder="Image Alt Tag" value="{{ $blog_img['alt_tag'] ?? '' }}"></div>
+    <div class="col col-sm-2">
+        <input type="text" name="image_copyright[{{ $blog_img['image_uuid'] }}]" class="form-control d-inline-block mr-2 image_fields" placeholder="Image Copyright" value="{{ $blog_img['copyright'] ?? '' }}" style="width:85%;">
         <div class="d-inline delete_image_wrap"><a href="javascript:void(0);" class="delete_image_btn"><i class="fas fa-trash-alt"></i></a></div>
     </div>
 </div>
