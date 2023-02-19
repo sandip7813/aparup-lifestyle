@@ -219,6 +219,8 @@ class BlogController extends Controller
 
             //+++++++++++++++++++++++++++ STORE & CROP IMAGES :: Start +++++++++++++++++++++++++++//
             if($request->hasFile('banner')) {
+                $bannerDir = 'images/blogs/';
+                
                 //------------- DELETE EXISTING IMAGES :: Start -------------//
                 $existingBanner = $blog->banner->name ?? null;
 
@@ -234,7 +236,6 @@ class BlogController extends Controller
                 $banner = Image::make($request->file('banner'));
 
                 $bannerName = time() . '-' . uniqid() . '.' . $request->file('banner')->getClientOriginalExtension();
-                $bannerDir = 'images/blogs/';
 
                 //------------- MAIN BANNER UPLOAD :: Start -------------//
                 $destinationPath = public_path( $bannerDir . 'main/' );

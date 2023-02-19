@@ -1,3 +1,9 @@
+@php
+$authUser = Auth::user();
+$authUser->load(['profile_picture']);
+
+$profile_pic_path = ( isset($authUser->profile_picture->name) ) ? 'images/users/300x300/' . $authUser->profile_picture->name : 'images/default-dp.png';
+@endphp
 <!-- Main Sidebar Container -->
 <aside class="main-sidebar sidebar-dark-primary elevation-4">
     <!-- Brand Logo -->
@@ -11,10 +17,10 @@
       <!-- Sidebar user panel (optional) -->
       <div class="user-panel mt-3 pb-3 mb-3 d-flex">
         <div class="image">
-          <img src="{{ asset('admin/dist/img/user2-160x160.jpg') }}" class="img-circle elevation-2" alt="User Image">
+          <img src="{{ asset($profile_pic_path) }}" class="img-circle elevation-2" alt="{{ Auth::user()->name ?? 'Admin' }}">
         </div>
         <div class="info">
-          <a href="#" class="d-block">Hi {{ Auth::user()->name ?? 'Admin' }},</a>
+          <a href="{{ route('admin.dashboard') }}" class="d-block">Hi {{ Auth::user()->name ?? 'Admin' }},</a>
         </div>
       </div>
 
@@ -84,6 +90,12 @@
             </a>
 
             <ul class="nav nav-treeview">
+              <li class="nav-item">
+                <a href="{{ route('admin.myaccount.update-profile') }}" class="nav-link @if (Request::is('admin/myaccount/update-profile')) active @endif">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Update Profile</p>
+                </a>
+              </li>
               <li class="nav-item">
                 <a href="{{ route('admin.myaccount.change-password') }}" class="nav-link @if (Request::is('admin/myaccount/change-password')) active @endif">
                   <i class="far fa-circle nav-icon"></i>

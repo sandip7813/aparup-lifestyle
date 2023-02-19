@@ -42,9 +42,14 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth'])->prefix('admin')->group(function(){
     Route::get('/dashboard', [AdminDashboard::class, 'index'])->name('admin.dashboard');
 
+    //+++++++++++++++++++++++++ MY PROFILE UPDATE :: Start +++++++++++++++++++++++++//
     Route::get('myaccount/change-password', [MyAccountController::class, 'changePassword'])->name('admin.myaccount.change-password');
     Route::post('myaccount/change-password-submit', [MyAccountController::class, 'changePasswordSubmit'])->name('admin.myaccount.change-password-submit');
-
+    Route::get('myaccount/update-profile', [MyAccountController::class, 'updateProfile'])->name('admin.myaccount.update-profile');
+    Route::post('myaccount/update-profile-submit', [MyAccountController::class, 'updateProfileSubmit'])->name('admin.myaccount.update-profile-submit');
+    Route::post('myaccount/delete-profile-picture', [MyAccountController::class, 'deleteProfilePicture'])->name('admin.myaccount.delete-profile-picture');
+    //+++++++++++++++++++++++++ MY PROFILE UPDATE :: End +++++++++++++++++++++++++//
+    
     //+++++++++++++++++++++++++ CATEGORIES :: Start +++++++++++++++++++++++++//
     Route::get('categories', [CategoryController::class, 'index'])->name('admin.category.index');
     Route::get('category/create', [CategoryController::class, 'create'])->name('admin.category.create');

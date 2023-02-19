@@ -14,7 +14,7 @@
         <i class="fas fa-user-cog"></i>
       </a>
       <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
-        <a href="javascript: void(0);" class="dropdown-item"><i class="fas fa-user mr-2"></i> Update Profile</a>
+        <a href="{{ route('admin.myaccount.update-profile') }}" class="dropdown-item"><i class="fas fa-user mr-2"></i> Update Profile</a>
         <div class="dropdown-divider"></div>
 
         <a href="{{ route('admin.myaccount.change-password') }}" class="dropdown-item"><i class="fas fa-lock mr-2"></i> Change Password</a>

@@ -96,4 +96,8 @@ class User extends Authenticatable
     public function roleAuthor(){
         return self::role_author == $this->getRoleSlug();
     }
+
+    public function profile_picture(){
+        return $this->hasOne(Medias::class, 'source_uuid', 'uuid')->where('media_type', 'user_profile');
+    }
 }
