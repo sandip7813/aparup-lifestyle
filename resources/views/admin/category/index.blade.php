@@ -76,6 +76,7 @@
                       <tr>
                         <th>Title</th>
                         <th>Slug</th>
+                        <th>Parent Category</th>
                         <th>Total Blogs</th>
                         <th class="no-sort">Status</th>
                         <th class="no-sort">Action</th>
@@ -83,9 +84,10 @@
                     </thead>
                     <tbody>
                       @foreach($categories as $cat)
-                        <tr>
+                        <tr class="{{ $statusColorClass[$cat->status] }}">
                           <td>{{ $cat->name }}</td>
                           <td>{{ $cat->slug }}</td>
+                          <td>{{ $cat->parent->name ?? '' }}</td>
                           <td>{{ $cat->blogs->count() }}</td>
                           <td>
                             @if( $cat->blogs->count() == 0 )

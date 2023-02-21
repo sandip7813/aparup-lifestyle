@@ -29,9 +29,9 @@ class BlogController extends Controller
     ];
 
     protected $statusColorClass = [
-        1 => 'table-success',
+        1 => '',
         0 => 'table-danger',
-        2 => 'table-light',
+        2 => 'table-warning',
     ];
 
     public function __construct(){

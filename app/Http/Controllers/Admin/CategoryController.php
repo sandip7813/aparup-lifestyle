@@ -22,6 +22,11 @@ class CategoryController extends Controller
         0 => 'Inactive',
     ];
 
+    protected $statusColorClass = [
+        1 => '',
+        0 => 'table-danger'
+    ];
+
     /**
      * Display a listing of the resource.
      *
@@ -29,7 +34,7 @@ class CategoryController extends Controller
      */
     public function index(Request $request)
     {
-        $categories_qry = Categories::with('blogs');
+        $categories_qry = Categories::with(['parent', 'blogs']);
 
         if( $request->filled('cat_title') ){
             $categories_qry->where('name', 'like', '%' . $request->cat_title . '%');
@@ -41,7 +46,10 @@ class CategoryController extends Controller
 
         $categories = $categories_qry->orderby('id','desc')->paginate(15);
 
-        return view('admin.category.index', compact('categories'))->with([ 'statusArray' => $this->statusArray ]);
+        return view('admin.category.index', compact('categories'))->with([
+                                                                        'statusArray' => $this->statusArray,
+                                                                        'statusColorClass' => $this->statusColorClass
+                                                                    ]);
     }
 
     /**
