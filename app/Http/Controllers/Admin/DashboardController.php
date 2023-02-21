@@ -5,6 +5,9 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
+use App\Models\Blogs;
+use App\Models\Categories;
+
 use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
@@ -14,16 +17,18 @@ class DashboardController extends Controller
     }
 
     public function index(){
-        $user = Auth::user();
-        $user->load(['role']);
+        $totalActiveBlogs = Blogs::where('page_type', 'blog_page')->where('status', '1')->count();
+        $totalDraftedBlogs = Blogs::where('page_type', 'blog_page')->where('status', '2')->count();
+        $totalInactiveBlogs = Blogs::where('page_type', 'blog_page')->where('status', '0')->count();
+        $totalActiveCategories = Categories::where('status', '1')->count();
 
-        $getRoleName = $user->getRoleName();
+        $recentActiveBlogs = Blogs::with(['categories', 'banner'])
+                                    ->where('page_type', 'blog_page')->where('status', '1')
+                                    ->orderBy('updated_at', 'DESC')->limit(5)->get();
+        
+        $recentCategories = Categories::with('blogs')->where('status', '1')
+                                        ->orderBy('updated_at', 'DESC')->limit(5)->get();
 
-        /* Auth::logout();
-        return redirect('login'); */
-
-        //echo $getRoleName . '<pre>'; print_r($user->toArray()); echo '</pre>'; exit;
-
-        return view('admin.dashboard.index');
+        return view('admin.dashboard.index', compact('totalActiveBlogs', 'totalDraftedBlogs', 'totalInactiveBlogs', 'totalActiveCategories', 'recentActiveBlogs', 'recentCategories'));
     }
 }

@@ -37,7 +37,7 @@ $profile_pic_path = ( isset($authUser->profile_picture->name) ) ? 'images/users/
           {{-- +++++++++++++++++++++++++ CATEGORIES :: Start +++++++++++++++++++++++++ --}}
           <li class="nav-item @if (Request::is('admin/categories') || Request::is('admin/categories/*') || Request::is('admin/category/*')) menu-open @endif">
             <a href="javascript: void(0);" class="nav-link @if (Request::is('admin/categories') || Request::is('admin/categories/*') || Request::is('admin/category/*')) active @endif">
-              <i class="nav-icon fas fa-th"></i>
+              <i class="nav-icon fas fa-tasks"></i>
               <p>Categories <i class="right fas fa-angle-left"></i></p>
             </a>
 
@@ -61,7 +61,7 @@ $profile_pic_path = ( isset($authUser->profile_picture->name) ) ? 'images/users/
           {{-- +++++++++++++++++++++++++ BLOGS :: Start +++++++++++++++++++++++++ --}}
           <li class="nav-item @if (Request::is('admin/blog') || Request::is('admin/blogs') || Request::is('admin/blog/*')) menu-open @endif">
             <a href="javascript: void(0);" class="nav-link @if (Request::is('admin/blog/*')) active @endif">
-              <i class="nav-icon fas fa-newspaper"></i>
+              <i class="nav-icon far fa-newspaper"></i>
               <p>Blogs <i class="right fas fa-angle-left"></i></p>
             </a>
 
