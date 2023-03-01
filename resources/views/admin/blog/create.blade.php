@@ -12,7 +12,8 @@ $category_ids = ( $blog->categories()->count() > 0 ) ? $blog->categories()->pluc
 <link rel="stylesheet" href="{{ asset('admin/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css') }}">
 <!-- summernote -->
 <link rel="stylesheet" href="{{ asset('admin/plugins/summernote/summernote-bs4.min.css') }}">
-<link rel="stylesheet" href="{{ asset('admin/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css') }}">
+<!-- daterange picker -->
+<link rel="stylesheet" href="{{ asset('admin/plugins/daterangepicker/daterangepicker.css') }}">
 @endsection
 
 @section('content')
@@ -87,10 +88,20 @@ $category_ids = ( $blog->categories()->count() > 0 ) ? $blog->categories()->pluc
 
                   <label>Blog Content</label>
                   <textarea name="blog_content" id="blog_content" class="main_content_field">{{ $blog->content }}</textarea>
+
+                  <label>Short Content</label>
+                  <div class="input-group mb-3 title_row">
+                    <textarea name="short_content" id="short_content" class="form-control" rows="3" placeholder="Enter Short Content">{{ $blog->short_content }}</textarea>
+                  </div>
                   
                   <label>Upload Banner</label>
                   <div class="input-group mb-3 title_row">
                     <input class="form-control" type="file" name="banner" id="blog_banner">
+                  </div>
+
+                  <label>Banner Alt Tag</label>
+                  <div class="input-group mb-3 title_row">
+                    <input type="text" name="banner_alt" class="form-control mr-2" placeholder="Banner Alt Tag" value="{{ $blog->banner->alt_tag ?? null }}">
                   </div>
                   
                   @if( isset($blog->contents) && $blog->contents->count() > 0 )
@@ -129,6 +140,21 @@ $category_ids = ( $blog->categories()->count() > 0 ) ? $blog->categories()->pluc
                       <label class="btn bg-olive @if($blog->status == '2') active @endif">
                         <input type="radio" name="blog_status" id="blog_draft" autocomplete="off" value="2" @if($blog->status == '2') checked @endif> Draft
                       </label>
+                      @if($blog->status != '1')
+                      <label class="btn bg-olive @if($blog->status == '3') active @endif">
+                        <input type="radio" name="blog_status" id="blog_schedule" autocomplete="off" value="3" @if($blog->status == '3') checked @endif> Schedule
+                      </label>
+                      @endif
+                    </div>
+                  </div>
+
+                  <div id="schedule_at_wrap" @if($blog->status != '3') style="display: none;" @endif>
+                    <label>Schedule At</label>
+                    <div class="input-group mb-3 title_row">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text"><i class="far fa-clock"></i></span>
+                      </div>
+                      <input type="text" name="schedule_at" class="form-control float-right" id="schedule_at" readonly>
                     </div>
                   </div>
 
@@ -158,13 +184,20 @@ $category_ids = ( $blog->categories()->count() > 0 ) ? $blog->categories()->pluc
 <script src="{{ asset('admin/plugins/select2/js/select2.full.min.js') }}"></script>
 <!-- Summernote -->
 <script src="{{ asset('admin/plugins/summernote/summernote-bs4.min.js') }}"></script>
+<!-- date-range-picker -->
+<script src="{{ asset('admin/plugins/moment/moment.min.js') }}"></script>
+<script src="{{ asset('admin/plugins/daterangepicker/daterangepicker.js') }}"></script>
 <script>
   $(function () {
+    var d = new Date();
+    var strDate = d.getFullYear() + '-' + (d.getMonth()+1) + '-' + d.getDate();
+    
     blog_content = $('.blog_content_field, .main_content_field');
     blog_category = $('#blog_category');
     post_blog_form = $('#post-blog-form');
     blog_uuid = $('#blog_uuid').val();
     add_content_block = $('#add-content-block');
+    schedule_at_wrap = $('#schedule_at_wrap');
 
     @if($post_type == 'edit')
       slug_modify_field = $('input[name="slug_modify"]');
@@ -178,6 +211,29 @@ $category_ids = ( $blog->categories()->count() > 0 ) ? $blog->categories()->pluc
 
     // Summernote
     blog_content.summernote({height: 300});
+
+    //++++++++++++++++++++ SCHEDULE POST :: Start ++++++++++++++++++++//
+    $('input[name="blog_status"]').on('change', function(){
+      blog_status = $(this).val();
+
+      if(blog_status == 3){
+        schedule_at_wrap.show();
+      }
+      else{
+        schedule_at_wrap.hide();
+      }
+    });
+
+    $('#schedule_at').daterangepicker({
+      singleDatePicker: true,
+      minDate: strDate,
+      timePicker: true,
+      timePickerIncrement: 30,
+      locale: {
+        format: 'YYYY-MM-DD hh:mm A'
+      }
+    });
+    //++++++++++++++++++++ SCHEDULE POST :: End ++++++++++++++++++++//
 
     $.ajaxSetup({
       headers: {

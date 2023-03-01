@@ -17,6 +17,7 @@ use Validator;
 use Image;
 use Illuminate\Support\Facades\File; 
 use Response;
+use Carbon\Carbon;
 
 class BlogController extends Controller
 {
@@ -26,12 +27,14 @@ class BlogController extends Controller
         1 => 'Active',
         0 => 'Inactive',
         2 => 'Drafted',
+        3 => 'Scheduled',
     ];
 
     protected $statusColorClass = [
         1 => '',
         0 => 'table-danger',
-        2 => 'table-warning',
+        2 => 'table-secondary',
+        3 => 'table-warning',
     ];
 
     public function __construct(){
@@ -72,11 +75,10 @@ class BlogController extends Controller
     }
 
     public function create($uuid){
-        $blog = Blogs::with(['categories', 'contents'])
+        $blog = Blogs::with(['categories', 'banner', 'contents'])
                         ->where('uuid', $uuid)
                         ->where('page_type', 'blog_page')
                         ->first();
-        
 
         if( !isset($blog->id) ){
             abort(404);
@@ -90,11 +92,11 @@ class BlogController extends Controller
     }
 
     public function edit($uuid){
-        $blog = Blogs::with(['categories', 'contents'])
+        $blog = Blogs::with(['categories', 'banner', 'contents'])
                         ->where('uuid', $uuid)
                         ->where('page_type', 'blog_page')
                         ->first();
-
+        
         if( !isset($blog->id) ){
             abort(404);
         }
@@ -134,7 +136,7 @@ class BlogController extends Controller
         $response = [];
 
         $response['status'] = '';
-
+        
         try {
             $post_type = $request->post_type ?? null;
             $blog_uuid = $request->blog_uuid ?? null;
@@ -157,6 +159,11 @@ class BlogController extends Controller
                 $validator_array['blog_title'] = 'required|max:255';
                 $validator_array['blog_category'] = 'required';
                 $validator_array['blog_content'] = 'required';
+                $validator_array['short_content'] = 'required';
+            }
+
+            if( $request->blog_status == '3' ){
+                $validator_array['schedule_at'] = 'required';
             }
 
             if( $post_type == 'edit' ){
@@ -176,16 +183,33 @@ class BlogController extends Controller
                 return response()->json(['status' => 'failed', 'error' => ['message' => $validator_errors]]);
             }
 
-            if( ($post_type == 'edit') && !is_null($existing_blog_title) ){
+            if( ($post_type == 'edit') && !is_null($existing_blog_title) && ($slug_editable || $slug_modify) ){
                 $duplicate_slug = Blogs::withTrashed()
                                         ->where('slug', $blog_slug)
-                                        ->where('uuid', '<>', $blog_uuid)
+                                        ->where('uuid', '!=', $blog_uuid)
                                         ->count();
-
+                
                 if( $duplicate_slug > 0 ){
                     return response()->json(['status' => 'failed', 'error' => ['message' => 'This slug can\'t be used!']]);
                 }
             }
+
+            $existingBanner = $blog->banner->name ?? null;
+
+            if( is_null($existingBanner) && !$request->hasFile('banner') && ($request->banner_alt != '') ){
+                return response()->json(['status' => 'failed', 'error' => ['message' => 'Please attach a banner image to provide it\'s alt tag!']]);
+            }
+
+            //+++++++++++++++++++++++++++ COMPARE SCHEDULED DATETIME WITH CURRENT DATETIME  :: Start +++++++++++++++++++++++++++//
+            if( $request->blog_status == '3' ){
+                $nowDate = Carbon::now();
+                $checkDiff = $nowDate->gt($request->schedule_at);
+
+                if( $checkDiff ){
+                    return response()->json(['status' => 'failed', 'error' => ['message' => 'Schedule date time should be greater than current time!']]);
+                }
+            }
+            //+++++++++++++++++++++++++++ COMPARE SCHEDULED DATETIME WITH CURRENT DATETIME  :: End +++++++++++++++++++++++++++//
 
             //+++++++++++++++++++++++++++ SAVE BLOG DETAILS :: Start +++++++++++++++++++++++++++//
             $blog->title = $blog_title;
@@ -206,6 +230,7 @@ class BlogController extends Controller
             $blog->page_title = $request->page_title ?? null;
             $blog->metadata = $request->metadata ?? null;
             $blog->status = $request->blog_status ?? null;
+            $blog->scheduled_at = ($request->blog_status == '3') ? $request->schedule_at : null;
 
             $blog->save();
             //+++++++++++++++++++++++++++ SAVE BLOG DETAILS :: End +++++++++++++++++++++++++++//
@@ -222,8 +247,6 @@ class BlogController extends Controller
                 $bannerDir = 'images/blogs/';
                 
                 //------------- DELETE EXISTING IMAGES :: Start -------------//
-                $existingBanner = $blog->banner->name ?? null;
-
                 if( !is_null($existingBanner) ){
                     File::delete( $bannerDir . 'main/' . $existingBanner );
                     File::delete( $bannerDir . '1000x600/' . $existingBanner );
@@ -259,8 +282,15 @@ class BlogController extends Controller
                     'media_type' => 'blog_banner',
                     'source_uuid' => $blog_uuid,
                     'name' => $bannerName,
+                    'alt_tag' => $request->banner_alt ?? null,
                     'is_active' => 1
                 ]);
+            }
+            else{
+                if(!is_null($existingBanner)){
+                    $blog->banner->alt_tag = $request->banner_alt ?? null;
+                    $blog->banner->save();
+                }
             }
             //+++++++++++++++++++++++++++ STORE & CROP IMAGES :: End +++++++++++++++++++++++++++//
 
