@@ -40,4 +40,8 @@ class HomeController extends Controller
         // dd($user->roles);
         // return view('dashboard');
     }
+
+    public function index(){
+        return view('front.home.index');
+    }
 }
