@@ -42,6 +42,8 @@ class HomeController extends Controller
     }
 
     public function index(){
+        $allCategories = categoriesWithDescendants();
+        //echo '<pre>'; print_r($allCategories->toArray()); echo '</pre>';
         return view('front.home.index');
     }
 }

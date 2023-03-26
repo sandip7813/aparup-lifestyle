@@ -26,44 +26,11 @@
             </div>
             <div class="col-lg-6 col-md-4 text-center">
                 <ul class="main-menu d-none d-lg-inline font-primary">
-                    <li> <a href="category.html">Healthy </a> </li>
-                    <li> <a href="category-2.html">Lifestyle</a> </li>
-                    <li class="menu-item-has-children">
-                        <a href="category-3.html">Blog</a>
-                        <ul class="sub-menu">
-                            <li><a href="category.html">Food</a></li>
-                            <li><a href="category-2.html">Travel</a></li>
-                            <li><a href="category-3.html">Gallery</a></li>
-                        </ul>
-                    </li>
-                    <li><a href="category-4.html">Travel</a></li>
-                    <li><a href="category-4.html">Beauty</a></li>
+                    @include('front.layouts.navigation')
                 </ul>
                 <!--Mobile menu-->
                 <ul id="mobile-menu" class="d-none">
-                    <li class="menu-item-has-children">
-                        <a href="#">Recipes</a>
-                        <ul class="sub-menu">
-                            <li><a href="category.html">Specialty Diets</a></li>
-                            <li><a href="category-2.html">Meal Prep Recipes</a></li>
-                            <li><a href="category-3.html">Whole30</a></li>
-                        </ul>
-                    </li>
-                    <li class="menu-item-has-children"><a href="#">Lifestyle</a>
-                        <ul class="sub-menu">
-                            <li><a href="category-4.html">Style</a></li>
-                            <li><a href="category.html">Travel</a></li>
-                            <li><a href="category-2.html">Shop</a></li>
-                        </ul>
-                    </li>
-                    <li class="menu-item-has-children"><a href="#">Shop</a>
-                        <ul class="sub-menu">
-                            <li><a href="category-3.html">Clothing</a></li>
-                            <li><a href="category-4.html">Beauty</a></li>
-                            <li><a href="category.html">Kitchen</a></li>
-                            <li><a href="category-2.html">Home</a></li>
-                        </ul>
-                    </li>
+                    @include('front.layouts.navigation')
                 </ul>
             </div>
             <div class="col-lg-3 col-md-4 text-right ">
