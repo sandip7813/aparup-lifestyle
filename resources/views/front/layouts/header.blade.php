@@ -14,7 +14,7 @@
         <!--Logo and tagline -->
         <div class="header-logo text-center pt-30 pb-30 d-none d-md-block">
             <h1 class="font-secondary"><a href="{{ config('app.url') }}">{{ config('app.name') }}</a></h1>
-            <p class="tagline font-primary">Creative Magazine</p>
+            <p class="tagline font-primary">{{ config('app.site_caption') }}</p>
         </div>
         <div class="row align-items-center d-none d-md-flex">
             <div class="col-lg-3 col-md-4">

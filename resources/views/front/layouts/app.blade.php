@@ -38,9 +38,7 @@
     @include('front.layouts.search')
 
     <!-- Start Main content -->
-    <main class="main-content bg-white">
-        @yield('content')
-    </main>
+    @yield('content')
     <!-- End Main content -->
 
     @include('front.layouts.footer')

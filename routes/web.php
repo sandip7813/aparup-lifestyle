@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\Front\HomeController;
+use App\Http\Controllers\Front\CategoryController as FrontCategoryController;
 
 use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
 use App\Http\Controllers\Admin\MyAccountController;
@@ -22,6 +23,7 @@ use App\Http\Controllers\Admin\BlogController;
 */
 
 Route::get('/', [HomeController::class, 'index'])->name('home.index');
+Route::get('/category/{slug}', [FrontCategoryController::class, 'posts'])->name('category.posts');
 
 /* Route::get('/', function () {
     return view('welcome');

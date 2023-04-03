@@ -7,7 +7,7 @@
                 <div class="d-inline-block">
                     <div class="header-logo mb-20">
                         <h1 class="font-secondary"><a class="text-white" href="{{ config('app.url') }}">{{ config('app.name') }}</a></h1>
-                        <p class="tagline font-primary">Creative Magazine</p>
+                        <p class="tagline font-primary">{{ config('app.site_caption') }}</p>
                     </div>
                     <p class="site-des">123 Main Street <br>New York, NY 10001</p>
                     <div class="view-more text-center mt-30">

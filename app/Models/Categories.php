@@ -43,11 +43,11 @@ class Categories extends Model
     }
 
     public function subcategory(){
-        return $this->hasMany(\App\Models\Categories::class, 'parent_id');
+        return $this->hasMany(\App\Models\Categories::class, 'parent_id')->where('status', '1');
     }
 
     public function parent(){
-        return $this->belongsTo(\App\Models\Categories::class, 'parent_id');
+        return $this->belongsTo(\App\Models\Categories::class, 'parent_id')->where('status', '1');
     }
 
     public static function generateSlug($name){

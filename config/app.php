@@ -215,4 +215,6 @@ return [
         'Image' => Intervention\Image\Facades\Image::class
     ])->toArray(),
 
+    'site_caption' => env('SITE_CAPTION'),
+
 ];

@@ -3,6 +3,7 @@
 @section('metaTitle', 'Home')
 
 @section('content')
+<main class="main-content bg-white">
     <div class="container mb-30 mt-50">
         <div class="sidebar-widget post-module-1">
             <div class="row mb-30">
@@ -171,6 +172,6 @@
         </div>
     </div>
 
-    @include('front.home.instagram-block')
-    
+    @include('front.includes.instagram-block')
+</main>
 @endsection
