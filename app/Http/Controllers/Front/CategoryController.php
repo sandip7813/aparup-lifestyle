@@ -25,7 +25,7 @@ class CategoryController extends Controller
                             })
                             ->where('page_type', 'blog_page')
                             ->where('status', '1')
-                            ->orderBy('id', 'DESC')
+                            ->orderBy('updated_at', 'DESC')
                             ->limit(6)
                             ->get();
         
@@ -44,10 +44,8 @@ class CategoryController extends Controller
                         ->where('page_type', 'blog_page')
                         ->where('status', '1')
                         ->whereNotIn('id', $topPostIds)
-                        ->orderBy('id', 'DESC')
+                        ->orderBy('updated_at', 'DESC')
                         ->paginate(3);
-        
-        //echo '<pre>'; print_r($mainPosts->toArray()); echo '</pre>';
 
         return view('front.category.posts', compact('category', 'topPosts', 'mainPosts'));
     }

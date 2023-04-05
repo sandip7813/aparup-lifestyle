@@ -35,7 +35,7 @@
                             <a href="single.html"><img src="{{ asset($imageUrl) }}" alt="{{ $topPost->banner->alt_tag ?? config('app.name') }}"></a>
                             @if($blockSize == 'large')
                             <div class="post-meta font-primary text-uppercase rotate-90 top-left">
-                                <span>{{ $topPost->created_at }}</span>
+                                <span>{{ \Carbon\Carbon::parse($topPost->created_at)->format('d, F Y') }}</span>
                             </div>
                             @endif
                         </figure>
@@ -56,7 +56,7 @@
                         <figure class="mb-20">
                             <a href="single.html"><img src="{{ asset($imageUrl) }}" alt="{{ $mainPost->banner->alt_tag ?? config('app.name') }}"></a>
                             <div class="post-meta font-primary text-uppercase rotate-90 top-left">
-                                <span>{{ $mainPost->created_at }}</span>
+                                <span>{{ \Carbon\Carbon::parse($mainPost->created_at)->format('d, F Y') }}</span>
                             </div>
                         </figure>
                         <h4 class="post-title">
