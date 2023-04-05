@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <title>@yield('metaTitle', config('app.name')) - {{ config('app.name') }}</title>
-    <meta name="description" content="">
+    <meta name="description" content="@yield('metaDescription', config('app.name')) - {{ config('app.name') }}">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="shortcut icon" type="image/x-icon" href="assets/imgs/theme/athena-favicon.svg">
     <!-- Theme CSS  -->
