@@ -28,19 +28,19 @@
                 @forelse($topPosts as $topKey => $topPost)
                     @php
                         $blockSize = ($topKey < 2) ? 'large' : 'medium';
-                        $imageUrl = isset($topPost->banner->name) ? 'images/blogs/1000x600/' . $topPost->banner->name : 'images/no-image.png';
+                        $bannerUrl = isset($topPost->banner->name) ? 'images/blogs/1000x600/' . $topPost->banner->name : 'images/no-image.png';
                     @endphp
                     <article class="@if($blockSize == 'large') col-lg-6 @else col-lg-3 @endif col-md-6 mb-30 wow animated fadeIn">
                         <figure class="mb-20">
-                            <a href="single.html"><img src="{{ asset($imageUrl) }}" alt="{{ $topPost->banner->alt_tag ?? config('app.name') }}"></a>
+                            <a href="{{ route('post.details', $topPost->slug) }}"><img src="{{ asset($bannerUrl) }}" alt="{{ $topPost->banner->alt_tag ?? config('app.name') }}"></a>
                             @if($blockSize == 'large')
                             <div class="post-meta font-primary text-uppercase rotate-90 top-left">
-                                <span>{{ \Carbon\Carbon::parse($topPost->created_at)->format('d, F Y') }}</span>
+                                <span>{{ \Carbon\Carbon::parse($topPost->updated_at)->format('d, F Y') }}</span>
                             </div>
                             @endif
                         </figure>
                         <h4 class="post-title">
-                            <a href="single.html">{{ $topPost->title }}</a>
+                            <a href="{{ route('post.details', $topPost->slug) }}">{{ $topPost->title }}</a>
                         </h4>
                     </article>
                 @empty
@@ -50,17 +50,17 @@
                 </div>
                 @forelse($mainPosts as $mainKey => $mainPost)
                     @php
-                        $imageUrl = isset($mainPost->banner->name) ? 'images/blogs/1000x600/' . $mainPost->banner->name : 'images/no-image.png';
+                        $bannerUrl = isset($mainPost->banner->name) ? 'images/blogs/1000x600/' . $mainPost->banner->name : 'images/no-image.png';
                     @endphp
                     <article class="col-lg-4 col-md-6 mb-30 wow animated fadeIn">
                         <figure class="mb-20">
-                            <a href="single.html"><img src="{{ asset($imageUrl) }}" alt="{{ $mainPost->banner->alt_tag ?? config('app.name') }}"></a>
+                            <a href="{{ route('post.details', $mainPost->slug) }}"><img src="{{ asset($bannerUrl) }}" alt="{{ $mainPost->banner->alt_tag ?? config('app.name') }}"></a>
                             <div class="post-meta font-primary text-uppercase rotate-90 top-left">
-                                <span>{{ \Carbon\Carbon::parse($mainPost->created_at)->format('d, F Y') }}</span>
+                                <span>{{ \Carbon\Carbon::parse($mainPost->updated_at)->format('d, F Y') }}</span>
                             </div>
                         </figure>
                         <h4 class="post-title">
-                            <a href="single.html">{{ $mainPost->title }}</a>
+                            <a href="{{ route('post.details', $mainPost->slug) }}">{{ $mainPost->title }}</a>
                         </h4>
                     </article>
                 @empty

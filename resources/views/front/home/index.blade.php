@@ -22,14 +22,14 @@
                             $articleClass = 'col-lg-3 col-md-6 mb-30';
                         }
                         
-                        $imageUrl = isset($post->banner->name) ? 'images/blogs/1000x600/' . $post->banner->name : 'images/no-image.png';
+                        $bannerUrl = isset($post->banner->name) ? 'images/blogs/1000x600/' . $post->banner->name : 'images/no-image.png';
                     @endphp
                     <article class="{{ $articleClass }}">
                         <figure class="mb-20">
-                            <a href="single.html"><img src="{{ $imageUrl }}" alt=""></a>
+                            <a href="{{ route('post.details', $post->slug) }}"><img src="{{ asset($bannerUrl) }}" alt="{{ $post->banner->alt_tag ?? config('app.name') }}"></a>
                             @if( $blockSize != 'small' )
                             <div class="post-meta font-primary text-uppercase rotate-90 top-left">
-                                <span>{{ \Carbon\Carbon::parse($post->created_at)->format('d, F Y') }}</span>
+                                <span>{{ \Carbon\Carbon::parse($post->updated_at)->format('d, F Y') }}</span>
                             </div>
                             @endif
                         </figure>
@@ -43,7 +43,7 @@
                         </div>
                         @endif
                         <h3 class="post-title">
-                            <a href="single.html">{{ $post->title }}</a>
+                            <a href="{{ route('post.details', $post->slug) }}">{{ $post->title }}</a>
                         </h3>
                     </article>
                 @empty

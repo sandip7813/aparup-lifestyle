@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\Front\HomeController;
 use App\Http\Controllers\Front\CategoryController as FrontCategoryController;
+use App\Http\Controllers\Front\PostController;
 
 use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
 use App\Http\Controllers\Admin\MyAccountController;
@@ -21,9 +22,6 @@ use App\Http\Controllers\Admin\BlogController;
 | contains the "web" middleware group. Now create something great!
 |
 */
-
-Route::get('/', [HomeController::class, 'index'])->name('home.index');
-Route::get('/category/{slug}', [FrontCategoryController::class, 'posts'])->name('category.posts');
 
 /* Route::get('/', function () {
     return view('welcome');
@@ -42,6 +40,12 @@ Route::middleware('auth')->group(function () {
 /* Route::group(['middleware'=>'auth'],function(){
     Route::get('dashboard', [HomeController::class, 'dashboard'])->name('dashboard');
 }); */
+
+//+++++++++++++++++++++++ FRONT ROUTE :: Start +++++++++++++++++++++++//
+Route::get('/', [HomeController::class, 'index'])->name('home.index');
+Route::get('/category/{slug}', [FrontCategoryController::class, 'posts'])->name('category.posts');
+Route::get('/post/{slug}', [PostController::class, 'postDetails'])->name('post.details');
+//+++++++++++++++++++++++ FRONT ROUTE :: End +++++++++++++++++++++++//
 
 //+++++++++++++++++++++++ ADMIN ROUTE :: Start +++++++++++++++++++++++//
 Route::middleware(['auth'])->prefix('admin')->group(function(){
