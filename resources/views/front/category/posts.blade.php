@@ -33,11 +33,9 @@
                     <article class="@if($blockSize == 'large') col-lg-6 @else col-lg-3 @endif col-md-6 mb-30 wow animated fadeIn">
                         <figure class="mb-20">
                             <a href="{{ route('post.details', $topPost->slug) }}"><img src="{{ asset($bannerUrl) }}" alt="{{ $topPost->banner->alt_tag ?? config('app.name') }}"></a>
-                            @if($blockSize == 'large')
                             <div class="post-meta font-primary text-uppercase rotate-90 top-left">
                                 <span>{{ \Carbon\Carbon::parse($topPost->updated_at)->format('d, F Y') }}</span>
                             </div>
-                            @endif
                         </figure>
                         <h4 class="post-title">
                             <a href="{{ route('post.details', $topPost->slug) }}">{{ $topPost->title }}</a>

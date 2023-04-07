@@ -45,7 +45,7 @@ class CategoryController extends Controller
                         ->where('status', '1')
                         ->whereNotIn('id', $topPostIds)
                         ->orderBy('updated_at', 'DESC')
-                        ->paginate(3);
+                        ->paginate(12);
 
         return view('front.category.posts', compact('category', 'topPosts', 'mainPosts'));
     }

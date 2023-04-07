@@ -11,3 +11,11 @@ if (!function_exists('categoriesWithDescendants')) {
                             ->get();
     }
 }
+
+if (!function_exists('allRootCategoriesWithBlogsCount')) {
+    function allRootCategoriesWithBlogsCount(){
+        return Categories::withCount('blogs')
+                            ->where('status', '1')
+                            ->get();
+    }
+}

@@ -78,39 +78,35 @@
                     <li class="list-inline-item"><a class="social-icon pt text-xs-center" target="_blank" href="#"><i class="athena-instagram"></i></a></li>
                 </ul>
             </div>
+
+            @if( $relatedPosts->count() > 0 )
             <!--More posts-->
             <div class="single-more-articles border">
                 <div class="widget-header-4 position-relative mb-30">
                     <h6 class="mt-5 mb-30 text-uppercase">Related posts</h6>
                     <button class="single-more-articles-close"><i class="athena-cancel"></i></button>
                 </div>
-                <article class="row align-items-center mb-30">
-                    <figure class="col-sm-4 mb-0">
-                        <a href="single.html"><img src="http://via.placeholder.com/500x500" alt=""></a>
-                    </figure>
-                    <div class="col-sm-8 pl-0">
-                        <h6 class="post-title">
-                            <a href="single.html">The World Caters to Average</a>
-                        </h6>
-                        <div class="post-meta mb-10 font-primary text-uppercase">
-                            <span class="date">By <a class="text-primary" href="author.html">Elizabeth</a></span>
+                @foreach($relatedPosts as $relPost)
+                    @php
+                        $bannerUrl = isset($relPost->banner->name) ? 'images/blogs/1000x600/' . $relPost->banner->name : 'images/no-image.png';
+                    @endphp
+                    <article class="row align-items-center mb-30">
+                        <figure class="col-sm-4 mb-0">
+                            <a href="{{ route('post.details', $relPost->slug) }}"><img src="{{ asset($bannerUrl) }}" alt=""></a>
+                        </figure>
+                        <div class="col-sm-8 pl-0">
+                            <h6 class="post-title">
+                                <a href="{{ route('post.details', $relPost->slug) }}">{{ $relPost->title }}</a>
+                            </h6>
+                            <div class="post-meta mb-10 font-primary text-uppercase">
+                                <span class="date">{{ \Carbon\Carbon::parse($relPost->updated_at)->format('d, F Y') }}</span>
+                            </div>
                         </div>
-                    </div>
-                </article>
-                <article class="row align-items-center mb-10">
-                    <figure class="col-sm-4 mb-0">
-                        <a href="single.html"><img src="http://via.placeholder.com/500x500" alt=""></a>
-                    </figure>
-                    <div class="col-sm-8 pl-0">
-                        <h6 class="post-title">
-                            <a href="single.html">The most haunted spot in every state</a>
-                        </h6>
-                        <div class="post-meta mb-10 font-primary text-uppercase">
-                            <span class="date">By <a class="text-primary" href="author.html">Brona</a></span>
-                        </div>
-                    </div>
-                </article>
+                    </article>
+                @endforeach
             </div>
+            @endif
+
             <!--Comments-->
             <hr class="section-divider">
             <div class="comments-area">
@@ -223,7 +219,7 @@
                 </div>
                 <form class="form-contact comment_form" action="#" id="commentForm">
                     <div class="row">
-                        <div class="col-12">
+                        <div class="col-12 mb-5">
                             <div class="form-group">
                                 <textarea class="form-control w-100" name="comment" id="comment" cols="30" rows="9" placeholder="Write Comment"></textarea>
                             </div>
