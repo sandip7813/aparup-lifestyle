@@ -113,180 +113,110 @@
                 <div class="widget-header-2 position-relative mb-30">
                     <h2 class="mt-5 mb-30">Comments</h2>
                 </div>
-                <div class="comment-list wow fadeIn animated">
-                    <div class="single-comment justify-content-between d-flex">
-                        <div class="user justify-content-between d-flex">
-                            <div class="thumb">
-                                <img src="http://via.placeholder.com/300x300" alt="">
-                            </div>
-                            <div class="desc">
-                                <p class="comment">
-                                    Vestibulum euismod, leo eget varius gravida, eros enim interdum urna, non rutrum enim ante quis metus. Duis porta ornare nulla ut bibendum
-                                </p>
-                                <div class="d-flex justify-content-between">
-                                    <div class="d-flex align-items-center">
-                                        <h5>
-                                            <a href="#">Rosie</a>
-                                        </h5>
-                                        <p class="date">6 minutes ago </p>
-                                    </div>
-                                    <div class="reply-btn">
-                                        <a href="#" class="btn-reply">Reply</a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="comment-list wow fadeIn animated">
-                    <div class="single-comment justify-content-between d-flex">
-                        <div class="user justify-content-between d-flex">
-                            <div class="thumb">
-                                <img src="http://via.placeholder.com/300x300" alt="">
-                            </div>
-                            <div class="desc">
-                                <p class="comment">
-                                    Sed ac lorem felis. Ut in odio lorem. Quisque magna dui, maximus ut commodo sed, vestibulum ac nibh. Aenean a tortor in sem tempus auctor
-                                </p>
-                                <div class="d-flex justify-content-between">
-                                    <div class="d-flex align-items-center">
-                                        <h5>
-                                            <a href="#">Agatha Christie</a>
-                                        </h5>
-                                        <p class="date">December 4, 2020 at 3:12 pm </p>
-                                    </div>
-                                    <div class="reply-btn">
-                                        <a href="#" class="btn-reply">Reply</a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="single-comment depth-2 justify-content-between d-flex mt-50">
-                        <div class="user justify-content-between d-flex">
-                            <div class="thumb">
-                                <img src="http://via.placeholder.com/300x300" alt="">
-                            </div>
-                            <div class="desc">
-                                <p class="comment">
-                                    Sed ac lorem felis. Ut in odio lorem. Quisque magna dui, maximus ut commodo sed, vestibulum ac nibh. Aenean a tortor in sem tempus auctor
-                                </p>
-                                <div class="d-flex justify-content-between">
-                                    <div class="d-flex align-items-center">
-                                        <h5>
-                                            <a href="#">Steven</a>
-                                        </h5>
-                                        <p class="date">December 4, 2020 at 3:12 pm </p>
-                                    </div>
-                                    <div class="reply-btn">
-                                        <a href="#" class="btn-reply">Reply</a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="comment-list wow fadeIn animated">
-                    <div class="single-comment justify-content-between d-flex">
-                        <div class="user justify-content-between d-flex">
-                            <div class="thumb">
-                                <img src="http://via.placeholder.com/300x300" alt="">
-                            </div>
-                            <div class="desc">
-                                <p class="comment">
-                                    Donec in ullamcorper quam. Aenean vel nibh eu magna gravida fermentum. Praesent eget nisi pulvinar, sollicitudin eros vitae, tristique odio.
-                                </p>
-                                <div class="d-flex justify-content-between">
-                                    <div class="d-flex align-items-center">
-                                        <h5>
-                                            <a href="#">Danielle Steel</a>
-                                        </h5>
-                                        <p class="date">December 4, 2020 at 3:12 pm </p>
-                                    </div>
-                                    <div class="reply-btn">
-                                        <a href="#" class="btn-reply">Reply</a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <div id="comments-list"></div>
             </div>
-            <!--comment form-->
-            <div class="comment-form wow fadeIn animated">
-                <div class="widget-header-2 position-relative mb-30">
-                    <h5 class="mt-5 mb-30">Leave a Reply</h5>
-                </div>
-                <form class="form-contact comment_form" action="#" id="commentForm">
-                    <div class="row">
-                        <div class="col-12 mb-5">
-                            <div class="form-group">
-                                <textarea class="form-control w-100" name="comment" id="comment" cols="30" rows="9" placeholder="Write Comment"></textarea>
-                            </div>
-                        </div>
-                        <div class="col-sm-6">
-                            <div class="form-group">
-                                <input class="form-control" name="name" id="name" type="text" placeholder="Name">
-                            </div>
-                        </div>
-                        <div class="col-sm-6">
-                            <div class="form-group">
-                                <input class="form-control" name="email" id="email" type="email" placeholder="Email">
-                            </div>
-                        </div>
-                        <div class="col-12">
-                            <div class="form-group">
-                                <input class="form-control" name="website" id="website" type="text" placeholder="Website">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <button type="submit" class="btn button button-contactForm">Post Comment</button>
-                    </div>
-                </form>
-            </div>
+
+            @include('front.post.comment-form')
         </article>
     </div>
     <!--container-->
-    <!--Instagram-->
-    <div class="sidebar-widget widget-instagram bg-white pt-50 wow animated fadeIn">
-        <div class="widget-header-2 font-primary mb-50 text-center">
-            <i class="athena-instagram mr-5"></i><span class="widget-subtitle position-relative text-primary">athena</span>
-            <h3 class="widget-title mt-5 mb-0">Follow Me On Instagram </h3>
-            <span class="font-small text-muted">Followed by: 256,215</span>
-        </div>
-        <ul class="alith-row alith-gap-0 overflow-hidden">
-            <li class="alith-col alith-col-6">
-                <a target="_blank" href="#">
-                    <img title="" alt="instar" src="http://via.placeholder.com/500x500">
-                </a>
-            </li>
-            <li class="alith-col alith-col-6">
-                <a target="_blank" href="#">
-                    <img title="" alt="instar" src="http://via.placeholder.com/500x500">
-                </a>
-            </li>
-            <li class="alith-col alith-col-6">
-                <a target="_blank" href="#">
-                    <img title="" alt="instar" src="http://via.placeholder.com/500x500">
-                </a>
-            </li>
-            <li class="alith-col alith-col-6">
-                <a target="_blank" href="#">
-                    <img title="" alt="instar" src="http://via.placeholder.com/500x500">
-                </a>
-            </li>
-            <li class="alith-col alith-col-6">
-                <a target="_blank" href="#">
-                    <img title="" alt="instar" src="http://via.placeholder.com/500x500">
-                </a>
-            </li>
-            <li class="alith-col alith-col-6">
-                <a target="_blank" href="#">
-                    <img title="" alt="instar" src="http://via.placeholder.com/500x500">
-                </a>
-            </li>
-        </ul>
-    </div>
+    @include('front.includes.instagram-block')
 </main>
+@endsection
+
+@section('scripts')
+<script src="{{ asset('js/sweetalert2@11.js') }}"></script>
+<script src="{{ asset('admin/plugins/sweetalert2/sweetalert2.min.js') }}"></script>
+<script src="{{ asset('js/custom.js') }}"></script>
+<script>
+    regenerate_comments_list();
+    
+    $(document).ready(function(){
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+
+        $(document).on('click', '.btn-reply', function (e) {
+            this_obj = $(this);
+            comment_uuid = this_obj.data('uuid');
+
+            $.ajax({
+                dataType: 'json',
+                type: 'POST',
+                data: {
+                    _token: '{{csrf_token()}}',
+                    comment_uuid : comment_uuid 
+                },
+                url: "{{ route('post.comment.reply-form') }}",
+                success:function(data) {
+                    if( data.status == 'failed' ){
+                        swal_fire_error(data.error.message);
+                        return false;
+                    }
+                    else if( data.status == 'success' ){
+                        reply_div = $('#reply-form-' + comment_uuid);
+                        reply_div.html(data.html);
+
+                        $([document.documentElement, document.body]).animate({
+                            scrollTop: reply_div.offset().top
+                        }, 1000);
+                    }
+                }
+            });
+        });
+
+        $(document).on('submit', '.commentForm', function (e) {
+            this_obj = $(this);
+            submit_btn = this_obj.find('.comment_btn');
+            comment_uuid = this_obj.find('input[name="comment_uuid"]').val();
+            
+            e.preventDefault();
+            var formData = new FormData(this);
+
+            submit_btn.html('<i class="fa fa-spinner" aria-hidden="true"></i> Posting...').attr('disabled', true);
+            btn_text = ( comment_uuid != '' ) ? 'Post Reply' : 'Post Comment';
+
+            $.ajax({
+                dataType: 'json',
+                type: 'POST',
+                data: formData ,
+                url: "{{ route('post.comment.submit', $post->uuid) }}",
+                cache: false,
+                contentType: false,
+                processData: false,
+                success:function(data) {
+                    submit_btn.html(btn_text).attr('disabled', false);
+
+                    if( data.status == 'failed' ){
+                        swal_fire_error(data.error.message);
+                        return false;
+                    }
+                    else if( data.status == 'success' ){
+                        swal_fire_success(data.message);
+                        regenerate_comments_list();
+                        this_obj[0].reset();
+                    }
+                }
+            });
+        });
+    });
+
+    function regenerate_comments_list(){
+        $.ajax({
+            dataType: 'json',
+            url: "{{ route('post.comments.regenerate-list', $post->uuid) }}",
+            success:function(data) {
+                if( data.status == 'failed' ){
+                    swal_fire_error(data.error.message);
+                    return false;
+                }
+                else if( data.status == 'success' ){
+                    $('#comments-list').html(data.html);
+                }
+            }
+        });
+    }
+</script>
 @endsection

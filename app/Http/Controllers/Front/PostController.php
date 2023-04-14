@@ -6,6 +6,9 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 use App\Models\Blogs;
+use App\Models\Comments;
+
+use Validator;
 
 class PostController extends Controller
 {
@@ -40,5 +43,77 @@ class PostController extends Controller
                             ->get();
 
         return view('front.post.details', compact('post', 'relatedPosts'));
+    }
+
+    public function commentSubmit(Request $request, $blog_uuid){
+        $response = [];
+
+        $response['status'] = '';
+        
+        try {
+            $validator = Validator::make($request->all(), [
+                'comment' => 'required',
+                'name' => 'required',
+                'email' => 'required|email',
+                'website' => 'nullable|url'
+            ]);
+
+            if( $validator->fails() ){
+                $validator_errors = implode('<br>', $validator->errors()->all());
+                return response()->json(['status' => 'failed', 'error' => ['message' => $validator_errors]]);
+            }
+
+            $comment_array = [
+                'blog_uuid' => $blog_uuid,
+                'name' => $request->name,
+                'email' => $request->email,
+                'website' => $request->website ?? null,
+                'content' => $request->comment
+            ];
+
+            $comment_uuid = ( isset($request->comment_uuid) && !empty($request->comment_uuid) ) ? $request->comment_uuid : null;
+
+            if( !is_null($comment_uuid) ){
+                $parent_comment = Comments::where('uuid', $comment_uuid)->first();
+                $comment_array['parent_id'] = $parent_comment->id ?? null;
+            }
+
+            $comment = Comments::create($comment_array);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Comment posted successfully!',
+                'comment_uuid' => $comment->uuid ?? null
+            ], 200);
+        } catch (\Exception $e) {
+            report($e);
+            return response()->json(['status' => 'failed', 'error' => ['message' => $e->getMessage()], 'e' => $e]);
+        }
+    }
+
+    public function replyForm(Request $request){
+        $comment_uuid = $request->comment_uuid ?? null;
+
+        if( is_null($comment_uuid) ){
+            return response()->json(['status' => 'failed', 'message' => 'Invalid request!'], 400);
+        }
+
+        $html = view('front.post.comment-form', compact('comment_uuid'))->render();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Comment posted successfully!',
+            'html' => $html
+        ], 200);
+    }
+
+    public function regenerateCommentsList($post_uuid){
+        $html = view('front.post.comments-list', compact('post_uuid'))->render();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Comments regenerated successfully!',
+            'html' => $html
+        ], 200);
     }
 }

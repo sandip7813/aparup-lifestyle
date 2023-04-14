@@ -45,6 +45,9 @@ Route::middleware('auth')->group(function () {
 Route::get('/', [HomeController::class, 'index'])->name('home.index');
 Route::get('/category/{slug}', [FrontCategoryController::class, 'posts'])->name('category.posts');
 Route::get('/post/{slug}', [PostController::class, 'postDetails'])->name('post.details');
+Route::post('/post/{uuid}/comment/submit', [PostController::class, 'commentSubmit'])->name('post.comment.submit');
+Route::post('/post/comment/reply-form', [PostController::class, 'replyForm'])->name('post.comment.reply-form');
+Route::get('/post/{uuid}/comments/regenerate-list', [PostController::class, 'regenerateCommentsList'])->name('post.comments.regenerate-list');
 //+++++++++++++++++++++++ FRONT ROUTE :: End +++++++++++++++++++++++//
 
 //+++++++++++++++++++++++ ADMIN ROUTE :: Start +++++++++++++++++++++++//
