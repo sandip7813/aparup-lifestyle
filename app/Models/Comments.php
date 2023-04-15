@@ -8,11 +8,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-use Staudenmeir\LaravelAdjacencyList\Eloquent\HasRecursiveRelationships;
+//use Staudenmeir\LaravelAdjacencyList\Eloquent\HasRecursiveRelationships;
 
 class Comments extends Model
 {
-    use HasFactory, SoftDeletes, HasRecursiveRelationships;
+    //use HasFactory, SoftDeletes, HasRecursiveRelationships;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = ['blog_uuid', 'parent_id', 'name', 'email', 'website', 'content'];
 

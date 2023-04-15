@@ -10,11 +10,12 @@ use App\Models\Blogs;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-use Staudenmeir\LaravelAdjacencyList\Eloquent\HasRecursiveRelationships;
+//use Staudenmeir\LaravelAdjacencyList\Eloquent\HasRecursiveRelationships;
 
 class Categories extends Model
 {
-    use HasFactory, SoftDeletes, HasRecursiveRelationships;
+    //use HasFactory, SoftDeletes, HasRecursiveRelationships;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = ['name', 'slug', 'parent_id', 'content', 'page_title', 'metadata', 'keywords'];
 
@@ -42,7 +43,7 @@ class Categories extends Model
         return $this->belongsToMany(Blogs::class);
     }
 
-    public function subcategory(){
+    public function descendants(){
         return $this->hasMany(\App\Models\Categories::class, 'parent_id')->where('status', '1');
     }
 

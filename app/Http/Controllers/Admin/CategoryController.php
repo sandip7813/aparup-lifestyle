@@ -287,10 +287,13 @@ class CategoryController extends Controller
 
     private static function categoriesTree($explode_uuid = null){
         if( !is_null($explode_uuid) ){
-            return Categories::where('uuid', '<>', $explode_uuid)->tree()->get()->toTree();
+            return Categories::with('descendants')
+                                ->where('uuid', '<>', $explode_uuid)
+                                ->whereNull('parent_id')
+                                ->get();
         }
         else{
-            return Categories::tree()->get()->toTree();
+            return Categories::with('descendants')->whereNull('parent_id')->get();
         }
     }
 }

@@ -4,10 +4,12 @@
     <label for="parent_category_{{ $categoryT['id'] }}" style="font-weight: normal;">{{ $categoryT['name'] }}</label>
   </div>
 </li>
-@if (count($categoryT['children']) > 0)
+{{--
+@if (count($categoryT['descendants']) > 0)
   <ul>
-  @foreach($categoryT['children'] as $categoryT)
+  @foreach($categoryT['descendants'] as $categoryT)
     @include('admin.category.tree-dropdown', $categoryT)
   @endforeach
   </ul>
 @endif
+--}}
