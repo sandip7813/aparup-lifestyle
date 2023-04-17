@@ -125,9 +125,6 @@
 @endsection
 
 @section('scripts')
-<script src="{{ asset('js/sweetalert2@11.js') }}"></script>
-<script src="{{ asset('admin/plugins/sweetalert2/sweetalert2.min.js') }}"></script>
-<script src="{{ asset('js/custom.js') }}"></script>
 <script>
     regenerate_comments_list();
     

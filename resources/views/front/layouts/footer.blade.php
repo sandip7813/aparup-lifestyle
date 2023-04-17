@@ -67,4 +67,22 @@ $allCategories = categoriesWithDescendants();
 <!-- Theme JS -->
 <script src="{{ asset('front/assets/js/main.js') }}"></script>
 
+<script src="{{ asset('js/sweetalert2@11.js') }}"></script>
+<script src="{{ asset('admin/plugins/sweetalert2/sweetalert2.min.js') }}"></script>
+<script src="{{ asset('js/custom.js') }}"></script>
+<script>
+    $(document).ready(function(){
+        $('#search-btn').on('click', function(e){
+            search_keyword = $('input[name="keyword"]').val().trim();
+            e.preventDefault();
+
+            if( search_keyword == '' ){
+                swal_fire_error('Please enter a keyword (post title) to search!');
+                return false;
+            }
+
+            $('#search-form').submit();
+        });
+    });
+</script>
 @yield('scripts')

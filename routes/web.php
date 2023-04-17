@@ -48,6 +48,7 @@ Route::get('/post/{slug}', [PostController::class, 'postDetails'])->name('post.d
 Route::post('/post/{uuid}/comment/submit', [PostController::class, 'commentSubmit'])->name('post.comment.submit');
 Route::post('/post/comment/reply-form', [PostController::class, 'replyForm'])->name('post.comment.reply-form');
 Route::get('/post/{uuid}/comments/regenerate-list', [PostController::class, 'regenerateCommentsList'])->name('post.comments.regenerate-list');
+Route::get('/search', [PostController::class, 'searchPosts'])->name('search.results');
 //+++++++++++++++++++++++ FRONT ROUTE :: End +++++++++++++++++++++++//
 
 //+++++++++++++++++++++++ ADMIN ROUTE :: Start +++++++++++++++++++++++//

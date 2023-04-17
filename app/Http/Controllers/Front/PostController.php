@@ -116,4 +116,17 @@ class PostController extends Controller
             'html' => $html
         ], 200);
     }
+
+    public function searchPosts(Request $request){
+        $keyword = $request->get('keyword', '');
+
+        $posts = Blogs::with('banner')
+                        ->where('title', 'like', '%' . $keyword . '%')
+                        ->where('page_type', 'blog_page')
+                        ->where('status', '1')
+                        ->orderBy('updated_at', 'DESC')
+                        ->paginate(18);
+
+        return view('front.post.search-result', compact('posts', 'keyword'));
+    }
 }
