@@ -26,7 +26,7 @@ class Comments extends Model
         });
     }
 
-    public function subcategory(){
+    public function descendants(){
         return $this->hasMany(\App\Models\Comments::class, 'parent_id')->where('status', '1');
     }
 

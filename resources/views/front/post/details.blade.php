@@ -60,10 +60,12 @@
                     <figure class="wp-block-gallery columns-3 wp-block-image">
                         <ul class="blocks-gallery-grid">
                             @foreach($subContent->images as $subImage)
-                            <li class="blocks-gallery-item"><a href="#"><img src="{{ asset('images/blogs/main/' . $subImage['name']) }}" alt=""></a></li>
+                            <li class="blocks-gallery-item">
+                                <a href="{{ $subImage['affiliate_url'] ?? '' }}"><img src="{{ asset('images/blogs/main/' . $subImage['name']) }}" alt=""></a>
+                                <figcaption> <i class="ti-credit-card mr-5"></i>{{ $subImage['copyright'] ?? '' }}</figcaption>
+                            </li>
                             @endforeach
                         </ul>
-                        <figcaption> <i class="ti-credit-card mr-5"></i>Image credit: Pexel.com </figcaption>
                     </figure>
                     @endif
                 @empty
@@ -164,7 +166,7 @@
             });
         });
 
-        $(document).on('submit', '.commentForm', function (e) {
+        /* $(document).on('submit', '.commentForm', function (e) {
             this_obj = $(this);
             submit_btn = this_obj.find('.comment_btn');
             comment_uuid = this_obj.find('input[name="comment_uuid"]').val();
@@ -197,7 +199,9 @@
                     }
                 }
             });
-        });
+        }); */
+
+        
     });
 
     function regenerate_comments_list(){
@@ -215,5 +219,69 @@
             }
         });
     }
+
+    var isCaptchaValidated = 0;
+
+    function onCaptchaValidated(){
+        // isCaptchaValidated = true;
+        var response = grecaptcha.getResponse();
+
+        isCaptchaValidated = response.length;
+    }
+
+    function commentFormSubmit(thisObj){
+        var response = grecaptcha.getResponse();
+
+        if(response.length === 0){
+            swal_fire_error('Captcha validation failed!');
+            return false;
+        }
+
+        //onCaptchaValidated = onCaptchaValidated();
+
+        console.log( isCaptchaValidated );
+        
+        thisForm = $(thisObj).parents('form');
+
+        comment_uuid = thisForm.find('input[name="comment_uuid"]').val();
+        comment = thisForm.find('input[name="comment"]').val();
+        name = thisForm.find('input[name="name"]').val();
+        email = thisForm.find('input[name="email"]').val();
+        website = thisForm.find('input[name="website"]').val();
+
+        $(thisObj).html('<i class="fa fa-spinner" aria-hidden="true"></i> Posting...').attr('disabled', true);
+        btn_text = ( comment_uuid != '' ) ? 'Post Reply' : 'Post Comment';
+
+        $.ajax({
+            dataType: 'json',
+            type: 'POST',
+            data: {
+                comment_uuid: comment_uuid,
+                comment: comment,
+                name: name,
+                email: email,
+                website: website,
+            } ,
+            url: "{{ route('post.comment.submit', $post->uuid) }}",
+            cache: false,
+            contentType: false,
+            processData: false,
+            success:function(data) {
+                $(thisObj).html(btn_text).attr('disabled', false);
+
+                if( data.status == 'failed' ){
+                    swal_fire_error(data.error.message);
+                    return false;
+                }
+                else if( data.status == 'success' ){
+                    swal_fire_success(data.message);
+                    regenerate_comments_list();
+                    thisForm[0].reset();
+                }
+            }
+        });
+    }
+
+    
 </script>
 @endsection

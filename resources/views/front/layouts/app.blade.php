@@ -13,8 +13,11 @@
     <link rel="stylesheet" href="{{ asset('front/assets/css/components.css') }}">
     <link rel="stylesheet" href="{{ asset('front/assets/css/widgets.css') }}">
     <link rel="stylesheet" href="{{ asset('front/assets/css/responsive.css') }}">
-
+    
+    <meta name="csrf-token" content="{{ csrf_token() }}" />
     @yield('styles')
+    
+    {!! htmlScriptTagJsApi() !!}    
 </head>
 
 <body>
