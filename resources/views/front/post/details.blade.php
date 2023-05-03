@@ -8,6 +8,27 @@
 @section('metaTitle', $page_title)
 @section('metaDescription', $meta_description)
 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/>
+@section('styles')
+<style>
+    div#social-links {
+        margin: 0 auto;
+        max-width: 500px;
+    }
+    div#social-links ul li {
+        display: inline-block;
+    }          
+    div#social-links ul li a {
+        padding: 10px;
+        /* border: 1px solid #ccc; */
+        margin: 10px;
+        font-size: 30px;
+        /* color: #222; */
+        background-color: #fafafa;
+    }
+</style>
+@endsection
+
 @section('content')
 <main class="main-content bg-white">
     <div class="container single-content">
@@ -27,14 +48,15 @@
                         @endif
                     </div>
                 </div>
-                <div class="col-md-6 text-right d-none d-md-inline">
+                {{-- <div class="col-md-6 text-right d-none d-md-inline">
                     <ul class="header-social-network d-inline-block list-inline mr-15">
                         <li class="list-inline-item text-muted"><span>Share this: </span></li>
                         <li class="list-inline-item"><a class="social-icon fb text-xs-center" target="_blank" href="#"><i class="athena-facebook"></i></a></li>
                         <li class="list-inline-item"><a class="social-icon tw text-xs-center" target="_blank" href="#"><i class="athena-twitter"></i></a></li>
                         <li class="list-inline-item"><a class="social-icon pt text-xs-center" target="_blank" href="#"><i class="athena-instagram"></i></a></li>
                     </ul>
-                </div>
+                    {!! $shareComponent !!}
+                </div> --}}
             </div>
         </div>
         <!--end single header-->
@@ -74,11 +96,7 @@
             </div>
             <div class="single-social-share text-center border bg-lighter p-50 mt-50 mb-50 clearfix wow fadeIn animated">
                 <p>If you enjoyed reading this story, then we'd love it if you would <strong>share it!</strong></p>
-                <ul class="header-social-network d-inline-block list-inline mr-15">
-                    <li class="list-inline-item"><a class="social-icon fb text-xs-center" target="_blank" href="#"><i class="athena-facebook"></i></a></li>
-                    <li class="list-inline-item"><a class="social-icon tw text-xs-center" target="_blank" href="#"><i class="athena-twitter"></i></a></li>
-                    <li class="list-inline-item"><a class="social-icon pt text-xs-center" target="_blank" href="#"><i class="athena-instagram"></i></a></li>
-                </ul>
+                {!! $shareComponent !!}
             </div>
 
             @if( $relatedPosts->count() > 0 )

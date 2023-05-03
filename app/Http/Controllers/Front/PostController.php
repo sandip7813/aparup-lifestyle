@@ -41,8 +41,21 @@ class PostController extends Controller
                             ->inRandomOrder()
                             ->limit(2)
                             ->get();
+        
+        $page_title = !is_null($post->page_title) ? $post->page_title : $post->name;
 
-        return view('front.post.details', compact('post', 'relatedPosts'));
+        $shareComponent = \Share::page(
+                            url()->full(),
+                            $page_title,
+                        )
+                        ->facebook()
+                        ->twitter()
+                        ->linkedin();
+                        ///->telegram()
+                        //->whatsapp();
+                        //->reddit();
+
+        return view('front.post.details', compact('post', 'relatedPosts', 'shareComponent'));
     }
 
     public function commentSubmit(Request $request, $blog_uuid){

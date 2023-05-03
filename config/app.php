@@ -199,6 +199,8 @@ return [
         Intervention\Image\ImageServiceProvider::class,
 
         Biscolab\ReCaptcha\ReCaptchaServiceProvider::class,
+
+        Jorenvh\Share\Providers\ShareServiceProvider::class,
     ],
 
     /*
@@ -215,6 +217,7 @@ return [
     'aliases' => Facade::defaultAliases()->merge([
         'Image' => Intervention\Image\Facades\Image::class,
         'ReCaptcha' => Biscolab\ReCaptcha\Facades\ReCaptcha::class,
+        'Share' => Jorenvh\Share\ShareFacade::class,
     ])->toArray(),
 
     'site_caption' => env('SITE_CAPTION'),
