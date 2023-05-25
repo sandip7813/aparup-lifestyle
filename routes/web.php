@@ -53,7 +53,7 @@ Route::get('/search', [PostController::class, 'searchPosts'])->name('search.resu
 
 //+++++++++++++++++++++++ ADMIN ROUTE :: Start +++++++++++++++++++++++//
 Route::middleware(['auth'])->prefix('admin')->group(function(){
-    Route::get('/dashboard', [AdminDashboard::class, 'index'])->name('admin.dashboard');
+    Route::get('dashboard', [AdminDashboard::class, 'index'])->name('admin.dashboard');
 
     //+++++++++++++++++++++++++ MY PROFILE UPDATE :: Start +++++++++++++++++++++++++//
     Route::get('myaccount/change-password', [MyAccountController::class, 'changePassword'])->name('admin.myaccount.change-password');

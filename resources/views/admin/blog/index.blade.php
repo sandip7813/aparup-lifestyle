@@ -111,6 +111,10 @@
                           <td>{{ $statusArray[$blog->status] }}</td>
                           <td>
                             <div>
+                              @if( $blog->status == 1 )
+                              <a href="{{ route('post.details', $blog->slug) }}" data-toggle="tooltip" data-placement="top" title="View this Post" target="_blank"><i class="far fa-eye"></i></a>
+                              &nbsp;&nbsp;&nbsp;
+                              @endif
                               <a href="{{ route('admin.blog.edit', $blog->uuid) }}" data-toggle="tooltip" data-placement="top" title="Edit this Blog info"><i class="fas fa-edit"></i></a>
                               &nbsp;&nbsp;&nbsp;
                               <a href="javascript: void(0);" data-toggle="tooltip" data-placement="top" title="Upload / Change the Banner Image" class="open_banner_upload_modal" data-uuid="{{ $blog->uuid }}" data-num="{{ $num }}"><i class="fas fa-upload"></i></a>

@@ -78,17 +78,26 @@
 
                     {!! $subContent->content !!}
 
-                    @if( count($subContent->images) > 0 )
+                    @if( isset($subContent->images) && (count($subContent->images) > 0) )
                     <figure class="wp-block-gallery columns-3 wp-block-image">
                         <ul class="blocks-gallery-grid">
+                            @php $affiliate_url = ''; @endphp
                             @foreach($subContent->images as $subImage)
-                            <li class="blocks-gallery-item">
-                                <a href="{{ $subImage['affiliate_url'] ?? '' }}"><img src="{{ asset('images/blogs/main/' . $subImage['name']) }}" alt=""></a>
-                                <figcaption> <i class="ti-credit-card mr-5"></i>{{ $subImage['copyright'] ?? '' }}</figcaption>
-                            </li>
+                                @php
+                                if(isset($subImage['affiliate_url']) && ($subImage['affiliate_url'] != '')){
+                                    $affiliate_url = $subImage['affiliate_url'];
+                                }
+                                @endphp
+                                <li class="blocks-gallery-item">
+                                    <a href="{{ $subImage['affiliate_url'] ?? '' }}"><img src="{{ asset('images/blogs/main/' . $subImage['name']) }}" alt="" style="height:250px;"></a>
+                                    <figcaption> <i class="ti-credit-card mr-5"></i>@if( isset($subImage['copyright']) )&copy;{{ $subImage['copyright'] ?? '' }}@endif</figcaption>
+                                </li>
                             @endforeach
                         </ul>
                     </figure>
+                    <div class="text-center">
+                        <a href="{{ $affiliate_url }}" target="_blank" class="btn btn-primary">View Product</a>
+                    </div>
                     @endif
                 @empty
                 @endforelse

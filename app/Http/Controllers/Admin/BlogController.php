@@ -137,7 +137,7 @@ class BlogController extends Controller
 
         $response['status'] = '';
         
-        try {
+        //try {
             $post_type = $request->post_type ?? null;
             $blog_uuid = $request->blog_uuid ?? null;
             $blog_title = $request->blog_title ?? null;
@@ -295,10 +295,10 @@ class BlogController extends Controller
             //+++++++++++++++++++++++++++ STORE & CROP IMAGES :: End +++++++++++++++++++++++++++//
 
             $response['status'] = 'success';
-        } catch (\Exception $e) {
+        /* } catch (\Exception $e) {
             report($e);
             return response()->json(['status' => 'failed', 'error' => ['message' => $e->getMessage()], 'e' => $e]);
-        }
+        } */
 
         return response()->json($response);
     }
