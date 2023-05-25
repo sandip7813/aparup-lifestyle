@@ -37,6 +37,8 @@ class BlogController extends Controller
         3 => 'table-warning',
     ];
 
+    protected $maxFileSize = 3; //in mb
+
     public function __construct(){
         $this->categories = Categories::orderBy('name', 'asc')->get();
     }
@@ -87,7 +89,8 @@ class BlogController extends Controller
         return view('admin.blog.create', compact('blog'))->with([
                                             'categories' => $this->categories,
                                             'blog_uuid' => $uuid,
-                                            'post_type' => 'create'
+                                            'post_type' => 'create',
+                                            'maxFileSize' => $this->maxFileSize
                                         ]);
     }
 
@@ -104,7 +107,8 @@ class BlogController extends Controller
         return view('admin.blog.create', compact('blog'))->with([
                                             'categories' => $this->categories,
                                             'blog_uuid' => $uuid,
-                                            'post_type' => 'edit'
+                                            'post_type' => 'edit',
+                                            'maxFileSize' => $this->maxFileSize
                                         ]);
     }
 
@@ -137,7 +141,7 @@ class BlogController extends Controller
 
         $response['status'] = '';
         
-        //try {
+        try {
             $post_type = $request->post_type ?? null;
             $blog_uuid = $request->blog_uuid ?? null;
             $blog_title = $request->blog_title ?? null;
@@ -172,7 +176,7 @@ class BlogController extends Controller
                 }
             }
 
-            $validator_array['banner'] = 'mimes:jpeg,jpg,png,gif|max:10000';
+            $validator_array['banner'] = 'mimes:jpeg,jpg,png,gif|max:3000';
             $validator_array['blog_status'] = 'required';
 
             $validator = Validator::make($request->all(), $validator_array);
@@ -295,10 +299,10 @@ class BlogController extends Controller
             //+++++++++++++++++++++++++++ STORE & CROP IMAGES :: End +++++++++++++++++++++++++++//
 
             $response['status'] = 'success';
-        /* } catch (\Exception $e) {
+        } catch (\Exception $e) {
             report($e);
             return response()->json(['status' => 'failed', 'error' => ['message' => $e->getMessage()], 'e' => $e]);
-        } */
+        }
 
         return response()->json($response);
     }

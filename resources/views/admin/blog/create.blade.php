@@ -205,12 +205,41 @@ $category_ids = ( $blog->categories()->count() > 0 ) ? $blog->categories()->pluc
       blog_slug_field = $('input[name="blog_slug"]');
     @endif
 
+    maxFileSize = @php echo $maxFileSize; @endphp
+
     blog_category.select2({
       theme: 'bootstrap4'
     });
 
     // Summernote
     blog_content.summernote({height: 300});
+
+    //++++++++++++++++++++ VALIDATE BANNER IMAGE :: Start ++++++++++++++++++++//
+    $('#blog_banner').on('change', function(){
+      var $input = $(this);
+      var files = $input[0].files;
+      var fileSize = files[0].size;
+      var filename = files[0].name;
+
+      var extension = filename.substr(filename.lastIndexOf('.'));
+      var allowedExtensionsRegx = /(\.jpg|\.jpeg|\.png|\.gif)$/i;
+      var isAllowed = allowedExtensionsRegx.test(extension);
+
+      var size = Math.round((fileSize / 1024));
+
+      if( !isAllowed ){
+        swal_fire_error('Invalid file type. Allowed types are: jpeg, jpg,png & gif');
+        $input.val(''); 
+        return false;
+      }
+
+      if (size > (maxFileSize * 1024)) {
+        swal_fire_error('File size can\'t be greater than ' + maxFileSize + 'mb.');
+        $input.val(''); 
+        return false;
+      }
+    });
+    //++++++++++++++++++++ VALIDATE BANNER IMAGE :: End ++++++++++++++++++++//
 
     //++++++++++++++++++++ SCHEDULE POST :: Start ++++++++++++++++++++//
     $('input[name="blog_status"]').on('change', function(){
@@ -371,7 +400,30 @@ $category_ids = ( $blog->categories()->count() > 0 ) ? $blog->categories()->pluc
       image_uuid = thisObj.parents('.content_images_wrapper').attr('id');
 
       var formData = new FormData();
+
+      //Image Validation
       var files = thisObj[0].files;
+      var fileSize = files[0].size;
+      var filename = files[0].name;
+
+      var size = Math.round((fileSize / 1024));
+
+      var extension = filename.substr(filename.lastIndexOf('.'));
+      var allowedExtensionsRegx = /(\.jpg|\.jpeg|\.png|\.gif)$/i;
+      var isAllowed = allowedExtensionsRegx.test(extension);
+
+      if( !isAllowed ){
+        swal_fire_error('Invalid file type. Allowed types are: jpeg, jpg,png & gif');
+        thisObj.val(''); 
+        return false;
+      }
+
+      if (size > (maxFileSize * 1024)) {
+        swal_fire_error('File size can\'t be greater than ' + maxFileSize + 'mb.');
+        thisObj.val(''); 
+        return false;
+      }
+      //
 
       formData.append('file',files[0]);
       formData.append('content_uuid', content_uuid);
