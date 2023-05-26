@@ -89,7 +89,7 @@
                                 }
                                 @endphp
                                 <li class="blocks-gallery-item">
-                                    <a href="{{ $subImage['affiliate_url'] ?? '' }}"><img src="{{ asset('images/blogs/main/' . $subImage['name']) }}" alt="" style="height:250px;"></a>
+                                    <a href="{{ $subImage['affiliate_url'] ?? '' }}" target="_blank"><img src="{{ asset('images/blogs/main/' . $subImage['name']) }}" alt=""></a>
                                     <figcaption> <i class="ti-credit-card mr-5"></i>@if( isset($subImage['copyright']) )&copy;{{ $subImage['copyright'] ?? '' }}@endif</figcaption>
                                 </li>
                             @endforeach
